@@ -37,6 +37,18 @@ export const Task = {
     }
     return executor;
   }
+
+  take(generator) {
+
+  }
+
+  takeLatest(generator) {
+
+  }
+
+  call(func, ...args) {
+
+  }
 }
 
 export class Model {

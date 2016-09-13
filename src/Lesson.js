@@ -1,5 +1,5 @@
 import React from 'react';
-import { Html, Collection, Commander, Viewier } from './mangojuice';
+import { Html, Collection, Commander, Viewier, Task } from './mangojuice';
 import * as Exercise from './Exercise';
 
 
@@ -15,14 +15,19 @@ export const Model = new Collection({
 
 
 export const Commands = new Commander({
-  Initialize: Model.update((model) => ({
-    isLoading: false,
-    details: 'Some long text',
-    exercises: [
-      Exercise.createExercise(1),
-      Exercise.createExercise(2),
-      Exercise.createExercise(3)
-    ]
+  Initialize: Task.takeLatest(() => [
+    Commands.InitializeSuccess,
+    Commands.InitializeFailed,
+    (model) => {
+      const data = yield Task.call(getGithubStars, 'c58/marsdb');
+      return data;
+    }
+  ]),
+  InitializeSuccess: Model.update((model, result) => ({
+    answer: result
+  })),
+  InitializeFailed: Model.update((model, error) => ({
+    answer: error
   })),
   ToggleDetails: Model.update((model) => ({
     isDetailsShowed: !model.isDetailsShowed
@@ -70,6 +75,9 @@ export const View = new Viewier((model) => (
   </div>
 ));
 
+export const getGithubStars = async (repoName) => {
+  return Promise.resolve(10);
+};
 
 export const getInitialModel = () => (
   Model.create({
