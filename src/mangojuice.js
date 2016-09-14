@@ -167,11 +167,11 @@ export class Commander {
   }
 
   static batch(commandsFn) {
-    return Commander.phantom((model, middleware, name) => (...args) => {
-      const commands = runContext(model, middleware, () => commandsFn(model));
-      const command = () => () => commands.forEach(command => command(...args));
-      return middleware({ name, command });
-    });
+    return (model, middleware, name) => (...args) => {
+      const commands = runContext(model, middleware, () => commandsFn(model, ...args));
+      const command = () => () => commands.forEach(command => command());
+      middleware({ name, command });
+    };
   }
 
   static middleware(handlersObj) {

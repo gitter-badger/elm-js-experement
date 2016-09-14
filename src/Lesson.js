@@ -26,7 +26,8 @@ export const Commands = new Commander({
   ]),
   InitializeSuccess: Model.update((model, result) => ({
     answer: result,
-    details: '123'
+    details: '123',
+    loading: false
   })),
   InitializeFailed: Model.update((model, error) => ({
     answer: error
@@ -37,6 +38,14 @@ export const Commands = new Commander({
   ChangeFieldValue: Model.update((model, field, e) => ({
     [field]: e.target.value
   })),
+  SetLoading: Model.update((model, val) => ({
+    loading: val
+  })),
+  HandleFieldChange: Commander.batch((model, field, e) => [
+    Commands.ChangeFieldValue.with(field, e),
+    Commands.SetLoading.with(true),
+    Commands.Initialize
+  ]),
   Incremented: Model.update((model) => ({
     incremented: true
   })),
@@ -63,8 +72,9 @@ export const View = new Viewier((model) => (
     <div>{model.answer}</div>
     <input
       value={model.answer}
-      onChange={Commands.ChangeFieldValue.with('answer')}
+      onChange={Commands.HandleFieldChange.with('answer')}
     />
+    {model.loading ? <div>Loading...</div> : null}
     <div>
       {Html.map(model.exercises, Commands.ExerciseCmd, Exercise.View)}
     </div>
