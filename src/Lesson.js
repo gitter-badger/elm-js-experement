@@ -15,16 +15,18 @@ export const Model = new Collection({
 
 
 export const Commands = new Commander({
-  Initialize: Task.takeLatest(() => [
+  Initialize: Task.execLatest((model) => [
     Commands.InitializeSuccess,
     Commands.InitializeFailed,
-    (model) => {
+    function* () {
+      yield Task.delay(2000);
       const data = yield Task.call(getGithubStars, 'c58/marsdb');
       return data;
     }
   ]),
   InitializeSuccess: Model.update((model, result) => ({
-    answer: result
+    answer: result,
+    details: '123'
   })),
   InitializeFailed: Model.update((model, error) => ({
     answer: error
@@ -66,7 +68,7 @@ export const View = new Viewier((model) => (
     <div>
       {Html.map(model.exercises, Commands.ExerciseCmd, Exercise.View)}
     </div>
-    <button onClick={Commands.ToggleDetails}>
+    <button onClick={Commands.Initialize}>
       Show details
     </button>
     {model.isDetailsShowed && (
@@ -76,7 +78,7 @@ export const View = new Viewier((model) => (
 ));
 
 export const getGithubStars = async (repoName) => {
-  return Promise.resolve(10);
+  return Promise.resolve(123);
 };
 
 export const getInitialModel = () => (

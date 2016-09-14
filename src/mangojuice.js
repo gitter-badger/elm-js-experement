@@ -1,5 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import * as sagaProc from 'redux-saga/lib/internal/proc';
+import * as sagaEffects from 'redux-saga/effects'
+import * as sagaUtils from 'redux-saga/lib/internal/utils'
 
 
 // Internal state
@@ -19,10 +22,12 @@ const runContext = (model, middleware, fn) => {
   return result;
 }
 
+
 export const Task = {
-  create(name, model, command) {
-    const middleware = activeMiddleware;
-    const val = { name, model, command, args: [] };
+  executors: {},
+
+  create(name, model, middleware, command) {
+    const val = { name, model, command, middleware, args: [] };
     const executor = (...args) => {
       const finalArgs = val.args.concat(args);
       return middleware({ ...val, args: finalArgs });
@@ -36,20 +41,52 @@ export const Task = {
       return executor;
     }
     return executor;
-  }
+  },
 
-  take(generator) {
+  execEvery(creator, cancelExisting = false) {
+    return (model, middleware, name) => (...args) => {
+      const [ onSuccessCmd, onFailCmd, generator ] = runContext(
+        model, middleware,
+        () => creator(model, ...args)
+      );
+      const onSuccess = (result) => {
+        if (result !== sagaProc.TASK_CANCEL) {
+          middleware(onSuccessCmd(result));
+        }
+      };
+      const onFail = (err) => {
+        const message = (err && err.message) ? err.message : err;
+        middleware(onFailCmd(message))
+      };
 
-  }
+      const currExec = this.executors[name];
+      if (cancelExisting && currExec) {
+        currExec.cancel();
+      }
 
-  takeLatest(generator) {
+      try {
+        const iterator = generator(model, ...args);
+        this.executors[name] = sagaProc.default(iterator);
+        this.executors[name].done.then(onSuccess, onFail);
+      } catch(e) {
+        onFail();
+      }
+    }
+  },
 
-  }
+  execLatest(creator) {
+    return this.execEvery(creator, true);
+  },
 
-  call(func, ...args) {
+  call(...args) {
+    return sagaEffects.call(...args);
+  },
 
+  delay(ms) {
+    return sagaEffects.call(sagaUtils.delay, ms);
   }
 }
+
 
 export class Model {
   constructor(values) {
@@ -79,13 +116,14 @@ export class Model {
   }
 }
 
+
 export class Collection {
   constructor(fields) {
     this.fields = fields;
   }
 
   update(updater) {
-    return (model, ...args) => {
+    return (model) => (...args) => {
       const newValues = updater(model, ...args);
       model.update(newValues);
     };
@@ -111,7 +149,7 @@ export class Commander {
           const command = commands[k];
           return commands[k].phantom
             ? command(activeModel, activeMiddleware, name)
-            : Task.create(name, activeModel, command);
+            : Task.create(name, activeModel, activeMiddleware, command);
         },
         enumerable: true,
         configurable: false
@@ -131,7 +169,7 @@ export class Commander {
   static batch(commandsFn) {
     return Commander.phantom((model, middleware, name) => (...args) => {
       const commands = runContext(model, middleware, () => commandsFn(model));
-      const command = () => commands.forEach(command => command(...args));
+      const command = () => () => commands.forEach(command => command(...args));
       return middleware({ name, command });
     });
   }
@@ -148,7 +186,7 @@ export class Commander {
       }
 
       const taskWrapper = () => middleware(task);
-      const command = () => runContext(model, middleware, () => {
+      const command = () => () => runContext(model, middleware, () => {
         const res = handler(task.model, taskWrapper);
         if (Array.isArray(res)) {
           res.forEach(x => x());
@@ -211,6 +249,7 @@ export const Html = {
   }
 };
 
+
 export const Process = {
   createChainedExecutor(parent) {
     const executor = (...args) => {
@@ -227,7 +266,7 @@ export const Process = {
     console.log(task);
     if (task) {
       const args = task.args || [];
-      task.command(task.model, ...args);
+      task.command(task.model, task.middleware, task.name)(...args);
     }
   },
 
