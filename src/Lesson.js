@@ -78,7 +78,7 @@ export const View = new Viewier((model) => (
     <div>
       {Html.map(model.exercises, Commands.ExerciseCmd, Exercise.View)}
     </div>
-    <button onClick={Commands.Initialize}>
+    <button onClick={Commands.ToggleDetails}>
       Show details
     </button>
     {model.isDetailsShowed && (
@@ -86,6 +86,7 @@ export const View = new Viewier((model) => (
     )}
   </div>
 ));
+
 
 export const getGithubStars = async (repoName) => {
   return Promise.resolve(123);

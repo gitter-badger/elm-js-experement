@@ -40,6 +40,9 @@ export const Task = {
       val.model = model;
       return executor;
     }
+    executor.name = () => {
+      return val.name;
+    }
     return executor;
   },
 
