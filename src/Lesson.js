@@ -1,9 +1,9 @@
 import React from 'react';
-import { Html, Collection, Commander, Viewier, Task } from './mangojuice';
+import { createModel, createCommands, Commander, Task } from './mangojuice';
 import * as Exercise from './Exercise';
 
 
-export const Model = new Collection({
+export const Model = createModel({
   name: String,
   details: String,
   answer: String,
@@ -14,11 +14,11 @@ export const Model = new Collection({
 });
 
 
-export const Commands = new Commander({
-  Initialize: Task.execLatest((model) => [
+export const Commands = createCommands({
+  Initialize: Task.execLatest(() => [
     Commands.InitializeSuccess,
     Commands.InitializeFailed,
-    function* () {
+    function* (model) {
       yield Task.delay(2000);
       const data = yield Task.call(getGithubStars, 'c58/marsdb');
       return data;
@@ -43,8 +43,7 @@ export const Commands = new Commander({
   })),
   HandleFieldChange: Commander.batch((model, field, e) => [
     Commands.ChangeFieldValue.with(field, e),
-    Commands.SetLoading.with(true),
-    Commands.Initialize
+    Commands.SetLoading.with(true)
   ]),
   Incremented: Model.update((model) => ({
     incremented: true
@@ -57,13 +56,13 @@ export const Commands = new Commander({
       Commands.Incremented, subCmd
     ]),
     [Exercise.Commands.Done]: (subModel, subCmd) => (
-      Commands.DoneExercise.with(subModel._id)
+      [Commands.DoneExercise, subModel._id]
     )
   })
-});
+};
 
 
-export const View = new Viewier((model) => (
+export const View = ({ model, nest, exec }) => (
   <div>
     <h1>{model.name}</h1>
     {model.incremented && (
@@ -72,20 +71,20 @@ export const View = new Viewier((model) => (
     <div>{model.answer}</div>
     <input
       value={model.answer}
-      onChange={Commands.HandleFieldChange.with('answer')}
+      onChange={exec(Commands.HandleFieldChange.with('answer'))}
     />
     {model.loading ? <div>Loading...</div> : null}
     <div>
-      {Html.map(model.exercises, Commands.ExerciseCmd, Exercise.View)}
+      {nest(model.exercise, Commands.ExerciseCmd, Exercise.View)}
     </div>
-    <button onClick={Commands.ToggleDetails}>
+    <button onClick={exec(Commands.ToggleDetails)}>
       Show details
     </button>
     {model.isDetailsShowed && (
       <div>{model.details}</div>
     )}
   </div>
-));
+);
 
 
 export const getGithubStars = async (repoName) => {

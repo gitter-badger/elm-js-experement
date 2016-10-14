@@ -1,23 +1,27 @@
 import React from 'react';
-import { Html, Collection, Commander, Viewier } from './mangojuice';
+import { createModel, createCommands, Commander } from './mangojuice';
 
 
-export const Model = new Collection({
+export const Model = createModel({
   score: Number
 });
 
-export const Commands = new Commander({
-  Increment: Model.update((model) => ({ score: model.score + 1 })),
+
+export const Executors = createCommands({
+  Increment: Model.update((model) => ({
+    score: model.score + 1
+  })),
   Done: Commander.noop()
 });
 
-export const View = new Viewier((model) => (
+
+export const View = ({ model, exec }) => (
   <div>
     <p>{model.score}</p>
-    <button onClick={Commands.Increment}>Increment</button>
-    <button onClick={Commands.Done}>Done</button>
+    <button onClick={exec(Commands.Increment)}>Increment</button>
+    <button onClick={exec(Commands.Done)}>Done</button>
   </div>
-));
+);
 
 
 export const createExercise = (score) =>
