@@ -1,9 +1,10 @@
-import { Router, Cmd, Collection, ViewProps } from './mangojuice';
+import { Cmd, Collection, ViewProps } from '../mangojuice';
+import * as Router from '../mangojuice/Router';
 import { Routes } from './Routes';
+import * as User from './User';
 import * as News from './News';
 import * as Mail from './Mail';
 import * as Letter from './Mail/Letter';
-import * as User from './User';
 
 
 export class Model extends Collection {
@@ -26,12 +27,12 @@ export const Commands = {
   HideNotification: Cmd.update((model : Model) => ({
     notification: ''
   }))
+  NewsCmd: Cmd.middleware(),
   MailCmd: Cmd.middleware()
     .when(Letter.Commands.Delete, (model : Model, letter : Letter.Model, subCmd) => [
       Commands.ShowNotification.with('Letter removed succeessfully!'),
       subCmd
-    ]),
-  NewsCmd: Cmd.middleware()
+    ])
 };
 
 export view = ({ model, nest, exec } : ViewProps<Model>) => (
@@ -51,8 +52,8 @@ export view = ({ model, nest, exec } : ViewProps<Model>) => (
 );
 
 export const init = () : Model => {
-  const route = Router.init(Routes);
   const user = User.init();
+  const route = Router.init(Routes);
   const news = News.init(route, user);
   const mail = Mail.init(route, user);
 

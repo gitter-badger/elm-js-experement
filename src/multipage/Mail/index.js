@@ -1,8 +1,9 @@
-import { Cmd, Router, Collection, ViewProps } from '../mangojuice';
+import { Cmd, Collection, ViewProps } from '../../mangojuice';
+import * as Router from '../../mangojuice/Router';
+import { MailRoutes } from '../Routes';
+import * as User from '../User';
 import * as Inbox from './Inbox';
 import * as Sent from './Sent';
-import User from '../User';
-import { MailRoutes } from './Routes';
 
 
 export class Model extends Collection {
