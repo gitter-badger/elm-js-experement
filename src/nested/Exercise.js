@@ -1,18 +1,18 @@
 import React from 'react';
-import { createModel, createCommands, Commander } from './mangojuice';
+import Manjuice from './mangojuice';
 
 
-export const Model = createModel({
+export const Model = {
   score: Number
-});
+};
 
 
-export const Executors = createCommands({
-  Increment: Model.update((model) => ({
+export const Executors = {
+  Done: Manjuice.noop(),
+  Increment: Manjuice.update((model) => ({
     score: model.score + 1
-  })),
-  Done: Commander.noop()
-});
+  }))
+};
 
 
 export const View = ({ model, exec }) => (

@@ -1,9 +1,9 @@
 import React from 'react';
-import { createModel, createCommands, Commander, Task } from './mangojuice';
+import Manjuice from './mangojuice';
 import * as Exercise from './Exercise';
 
 
-export const Model = createModel({
+export const Model = {
   name: String,
   details: String,
   answer: String,
@@ -11,47 +11,47 @@ export const Model = createModel({
   exercises: Exercise.Model,
   isDetailsShowed: Boolean,
   isLoading: Boolean
-});
+};
 
 
-export const Commands = createCommands({
-  Initialize: Task.execLatest(() => [
+export const Commands = {
+  Initialize: Manjuice.execLatest(() => [
     Commands.InitializeSuccess,
     Commands.InitializeFailed,
     function* (model) {
-      yield Task.delay(2000);
-      const data = yield Task.call(getGithubStars, 'c58/marsdb');
+      yield Manjuice.delay(2000);
+      const data = yield Manjuice.call(getGithubStars, 'c58/marsdb');
       return data;
     }
   ]),
-  InitializeSuccess: Model.update((model, result) => ({
+  InitializeSuccess: Manjuice.update((model, result) => ({
     answer: result,
     details: '123',
     loading: false
   })),
-  InitializeFailed: Model.update((model, error) => ({
+  InitializeFailed: Manjuice.update((model, error) => ({
     answer: error
   })),
-  ToggleDetails: Model.update((model) => ({
+  ToggleDetails: Manjuice.update((model) => ({
     isDetailsShowed: !model.isDetailsShowed
   })),
-  ChangeFieldValue: Model.update((model, field, e) => ({
+  ChangeFieldValue: Manjuice.update((model, field, e) => ({
     [field]: e.target.value
   })),
-  SetLoading: Model.update((model, val) => ({
+  SetLoading: Manjuice.update((model, val) => ({
     loading: val
   })),
-  HandleFieldChange: Commander.batch((model, field, e) => [
+  HandleFieldChange: Manjuice.batch((model, field, e) => [
     Commands.ChangeFieldValue.with(field, e),
     Commands.SetLoading.with(true)
   ]),
-  Incremented: Model.update((model) => ({
+  Incremented: Manjuice.update((model) => ({
     incremented: true
   })),
-  DoneExercise: Model.update((model, id) => ({
+  DoneExercise: Manjuice.update((model, id) => ({
     exercises: model.exercises.filter(x => x._id !== id)
   })),
-  ExerciseCmd: Commander.middleware({
+  ExerciseCmd: Manjuice.middleware({
     [Exercise.Commands.Increment]: (subModel, subCmd) => ([
       Commands.Incremented, subCmd
     ]),
@@ -91,11 +91,12 @@ export const getGithubStars = async (repoName) => {
   return Promise.resolve(123);
 };
 
-export const getInitialModel = () => (
-  Model.create({
+export const getInitialModel = () => [
+  Commands.Initialize,
+  Manjuice.createModel({
     isDetailsShowed: false,
     isLoading: true,
     exercises: [],
     answer: ''
   })
-);
+];

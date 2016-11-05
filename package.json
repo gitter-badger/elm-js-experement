@@ -21,7 +21,9 @@
     "webpack-dev-middleware": "^1.6.1",
     "webpack-dev-server": "^1.14.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "babel-core": "^6.17.0"
+  },
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
