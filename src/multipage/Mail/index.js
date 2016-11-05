@@ -1,4 +1,4 @@
-import { Cmd, Sub, Router, Collection, ViewProps } from '../mangojuice';
+import { Cmd, Router, Collection, ViewProps } from '../mangojuice';
 import * as Inbox from './Inbox';
 import * as Sent from './Sent';
 import User from '../User';
@@ -13,12 +13,6 @@ export class Model extends Collection {
 };
 
 export const Commands = {
-  SetNextRoute: Cmd.update((model, route) => ({
-    update: { route }
-  })),
-  SetNextUser: Cmd.update((model, user) => ({
-    update: { user }
-  }))
   InboxCmd: Cmd.middleware(),
   SentCmd: Cmd.middleware()
 };
@@ -44,8 +38,8 @@ export const view = ({ model, nest, exec } : ViewProps<Model>) => (
       </li>
     </ul>
     {model.route.switch()
-      .when(MailRoutes.Inbox, () => nest(model.inbox, Commands.InboxCmd, Inbox.view))
-      .when(MailRoutes.Sent, () => nest(model.sent, Commands.SentCmd, Sent.view))
+      .when(MailRoutes.Inbox, () => nest(model.inbox, Inbox.view))
+      .when(MailRoutes.Sent, () => nest(model.sent, Sent.view))
     }
   </div>
 );
@@ -55,18 +49,10 @@ export const init = (
   user : User.Model
 ) : Model => {
   const inbox = Inbox.init(route, user);
-  const sent = Sent.init(user);
+  const sent = Sent.init(route, user);
 
-  return new Model({ route, user, inbox, sent }, {
-    cmd: Cmd.batch(
-      Cmd.map(Commands.InboxCmd, inbox.cmd),
-      Cmd.map(Commands.SentCmd, sent.cmd)
-    ),
-    sub: Sub.batch(
-      Router.changed(MailRoutes, Commands.SetNextRoute),
-      User.changed(Commands.SetNextUser),
-      Sub.map(Commands.InboxCmd, inbox.sub),
-      Sub.map(Commands.SentCmd, sent.sub)
-    )
-  });
+  return new Model({ route, user, inbox, sent })
+  .depend(route)
+  .nest(inbox, Commands.InboxCmd)
+  .nest(sent, Commands.SentCmd)
 }

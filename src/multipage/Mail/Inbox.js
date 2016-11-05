@@ -1,4 +1,4 @@
-import { Cmd, Sub, Router, Task, Collection, ViewProps } from '../mangojuice';
+import { Cmd, Router, Task, Collection, ViewProps } from '../mangojuice';
 import * as Letter from './Letter';
 import User from '../User';
 import { MailRoutes } from './Routes';
@@ -12,20 +12,6 @@ export class Model extends Collection {
 };
 
 export const Commands = {
-  InitBoxesList: Cmd.batch((model: Model) => [
-    Commands.UpdateBoxesList,
-    Commands.GetBoxLetters
-  ]),
-  UpdateRoute: Cmd.batch((model: Model) => [
-    Commands.SetNextRoute,
-    Commands.GetBoxLetters
-  ]),
-  SetNextUser: Cmd.update((model: Model, user: User.Model) => ({
-    update: { user }
-  })),
-  SetNextRoute: Cmd.update((model: Model, route: Router.Model) => ({
-    update: { route }
-  })),
   UpdateBoxesList: Cmd.execLatest(() => [
     Commands.BoxesGetSuccess,
     Commands.BoxesGetFailed,
@@ -35,8 +21,8 @@ export const Commands = {
       return data;
     }
   ]),
-  BoxesGetSuccess: Cmd.update((model: Model, boxes: Array) => ({
-    update: { boxes }
+  BoxesGetSuccess: Cmd.update((model: Model, nextBoxes: Array) => ({
+    boxes: nextBoxes
   })),
   BoxesGetFailed: Cmd.nope(),
   GetBoxLetters: Cmd.execLatest(() => [
@@ -50,19 +36,23 @@ export const Commands = {
   ]),
   LettersGetSuccess: Cmd.update((model: Model, nextLetters: Array) => {
     const letters = nextLetters.map(l => Letter.init(model.user, l));
-    return {
-      update: { letters },
-      cmd: Cmd.batch(letters.map(x => Cmd.map(Commands.LetterCmd, x.cmd))),
-      sub: Sub.batch(letters.map(x => Sub.map(Commands.LetterCmd, x.sub)))
-    };
+    const updateModel = new Model({ letters });
+    letters.forEach(l => updateModel.nest(l, Commands.LetterCmd));
+    return updateModel;
   }),
   LettersGetFailed: Cmd.nope(),
-  FilterLetterOut: Cmd.update((model, id) => ({
-    update: { letters: model.letters.filter(x => x.id !== id) }
+  FilterOutLetter: Cmd.update((model, id) => ({
+    letters: model.letters.filter(x => x.id !== id)
   }))
   LetterCmd: Cmd.middleware()
     .when(Letter.Commands.Delete, (model, letter, subCmd) => [
-      Commands.FilterLetterOut.with(letter.id),
+      Commands.FilterOutLetter.with(letter.id),
+      subCmd
+    ]),
+  RouterCmd: Cmd.middleware()
+    .other((model, route, subCmd) => [
+      route.firstTime(MailRoutes.Inbox) && Commands.UpdateBoxesList,
+      route.changed(MailRoutes.Inbox) && Commands.GetBoxLetters,
       subCmd
     ])
 };
@@ -85,7 +75,7 @@ export const view = ({ model, exec, nest } : ViewProps<Model>}) => (
     <div>
       <h2>Mails</h2>
       {model.letters.map(letter => (
-        <p>{nest(letter, Commands.LetterCmd, Letter.view)}</p>
+        <p>{nest(letter, Letter.view)}</p>
       ))}
     </div>
   </div>
@@ -100,13 +90,8 @@ export const init = (
     route,
     boxes: [],
     letters: []
-  }, {
-    cmd: Commands.InitBoxesList,
-    sub: Sub.batch(
-      Router.changed(MailRoutes.Inbox, Commands.UpdateRoute),
-      User.changed(Commands.SetNextUser)
-    )
-  });
+  })
+  .nest(route, Commands.RouterCmd)
 
 
 export const getBoxesList = () => {

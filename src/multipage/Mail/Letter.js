@@ -9,17 +9,14 @@ export class Model extends Collection {
 };
 
 export const Commands = {
-  Delete: Cmd.none(),
-  SetNextUser: Cmd.update((model : Model, user : User.Model) => ({
-    update: { user }
-  }))
+  Delete: Cmd.none()
 };
 
 export const view = ({ model, exec } : ViewProps<Model>) => (
   <div>
     <h3>{model.title}</h3>
     <p>{model.text}</p>
-    {model.user.isAuthorized() && (
+    {model.user.authorized && (
       <div>
         <button onClick={exec(Commands.Delete)}>Delete</button>
       </div>
@@ -32,6 +29,5 @@ export const init = (user: User.Model, letter: Object) : Model =>
     user,
     title: letter.title,
     text: letter.text
-  }, {
-    sub: User.changed(Commands.SetNextUser)
-  });
+  })
+  .depend(user);
