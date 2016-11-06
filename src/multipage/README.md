@@ -13,3 +13,4 @@ some common problems in web development.
   - If user logged in, user may be able to remove some mail from inbox.
   - Also user's name showed in navigation or sign in button otherwise.
 3. Navigation header with active page highlighting
+4. i18n integration with hot language changer

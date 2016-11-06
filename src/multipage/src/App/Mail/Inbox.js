@@ -1,8 +1,8 @@
-import { Cmd, Collection, Task, ViewProps } from '../../mangojuice';
-import * as Router from '../../mangojuice/Router';
-import * as Intl from '../../mangojuice/Intl';
-import { MailRoutes } from '../Routes';
-import * as User from '../User';
+import { Cmd, Collection, Task, ViewProps } from 'mangojuice';
+import * as Router from 'mangojuice/Router';
+import * as Intl from 'mangojuice/Intl';
+import * as User from '../../Shared/User';
+import { MailRoutes } from '../../routes';
 import * as Letter from './Letter';
 
 
@@ -15,28 +15,28 @@ export class Model extends Collection {
 };
 
 export const Commands = {
-  UpdateBoxesList: Cmd.execLatest(() => [
-    Commands.BoxesGetSuccess,
-    Commands.BoxesGetFailed,
-    function* (model: Model) {
+  UpdateBoxesList: Cmd.execLatest(() =>
+    new Task(function* () {
       yield Task.delay(2000);
       const data = yield Task.call(getBoxesList);
       return data;
-    }
-  ]),
+    })
+    .success(Commands.BoxesGetSuccess)
+    .fail(Commands.BoxesGetFailed)
+  ),
   BoxesGetSuccess: Cmd.update((model: Model, nextBoxes: Array) => ({
     boxes: nextBoxes
   })),
   BoxesGetFailed: Cmd.nope(),
-  GetBoxLetters: Cmd.execLatest(() => [
-    Commands.LettersGetSuccess,
-    Commands.LettersGetFailed,
-    function* (model: Model) {
+  GetBoxLetters: Cmd.execLatest(() =>
+    new Task(function* (model: Model) {
       yield Cmd.delay(2000);
       const data = yield Cmd.call(getMailsList, model.route.box);
       return data;
-    }
-  ]),
+    })
+    .success(Commands.LettersGetSuccess)
+    .fail(Commands.LettersGetFailed)
+  ),
   LettersGetSuccess: Cmd.update((model: Model, nextLetters: Array) => {
     const letters = nextLetters.map(l => Letter.init(model.user, model.intl, l));
     const updateModel = new Model({ letters });
@@ -48,15 +48,15 @@ export const Commands = {
     letters: model.letters.filter(x => x.id !== id)
   }))
   LetterCmd: Cmd.middleware()
-    .when(Letter.Commands.Delete, (model, letter, subCmd) => [
+    .when(Letter.Commands.Delete, (model, letter, letterCmd) => [
       Commands.FilterOutLetter.with(letter.id),
-      subCmd
+      letterCmd
     ]),
   RouterCmd: Cmd.middleware()
-    .other((model, route, subCmd) => [
+    .default((model, route, routeCmd) => [
       route.firstTime(MailRoutes.Inbox) && Commands.UpdateBoxesList,
       route.changed(MailRoutes.Inbox) && Commands.GetBoxLetters,
-      subCmd
+      routeCmd
     ])
 };
 

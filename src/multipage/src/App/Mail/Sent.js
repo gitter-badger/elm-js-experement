@@ -1,7 +1,7 @@
-import { Cmd, Collection, Task, ViewProps } from '../../mangojuice';
-import * as Router from '../../mangojuice/Router';
-import * as User from '../User';
-import { MailRoutes } from '../Routes';
+import { Cmd, Collection, ViewProps } from 'mangojuice';
+import * as Router from 'mangojuice/Router';
+import * as User from '../../Shared/User';
+import { MailRoutes } from '../../routes';
 
 
 export class Model extends Collection {
@@ -13,9 +13,9 @@ export class Model extends Collection {
 export const Commands = {
   InitSentLetters: Cmd.none(),
   RouterCmd: Cmd.middleware()
-    .other((model, route, subCmd) => [
+    .default((model, route, routeCmd) => [
       route.firstTime(MailRoutes.Sent) && Commands.InitSentLetters,
-      subCmd
+      routeCmd
     ])
 };
 

@@ -1,5 +1,6 @@
-import { Cmd, Collection, Task, ViewProps } from '../../mangojuice';
-import * as User from '../User';
+import { Cmd, Collection, ViewProps } from '../../mangojuice';
+import * as Intl from 'mangojuice/Intl';
+import * as User from '../../Shared/User';
 
 
 export class Model extends Collection {
