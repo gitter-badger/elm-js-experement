@@ -1,11 +1,13 @@
 import { Cmd, Collection, Task, ViewProps } from '../../mangojuice';
 import * as Router from '../../mangojuice/Router';
+import * as Intl from '../../mangojuice/Intl';
 import { MailRoutes } from '../Routes';
 import * as User from '../User';
 import * as Letter from './Letter';
 
 
 export class Model extends Collection {
+  intl: Intl.Model;
   route: Router.Model;
   user: User.Model;
   boxes: Array;
@@ -36,7 +38,7 @@ export const Commands = {
     }
   ]),
   LettersGetSuccess: Cmd.update((model: Model, nextLetters: Array) => {
-    const letters = nextLetters.map(l => Letter.init(model.user, l));
+    const letters = nextLetters.map(l => Letter.init(model.user, model.intl, l));
     const updateModel = new Model({ letters });
     letters.forEach(l => updateModel.nest(l, Commands.LetterCmd));
     return updateModel;
@@ -84,14 +86,17 @@ export const view = ({ model, exec, nest } : ViewProps<Model>}) => (
 
 export const init = (
   route : Router.Model,
-  user : User.Model
+  user : User.Model,
+  intl : Intl.Model,
 ) : Model =>
   new Model({
+    intl,
     user,
     route,
     boxes: [],
     letters: []
   })
+  .depend(intl)
   .nest(route, Commands.RouterCmd)
 
 

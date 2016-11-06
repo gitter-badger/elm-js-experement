@@ -1,5 +1,6 @@
 import { Cmd, Collection, ViewProps } from '../../mangojuice';
 import * as Router from '../../mangojuice/Router';
+import * as Intl from '../../mangojuice/Intl';
 import { MailRoutes } from '../Routes';
 import * as User from '../User';
 import * as Inbox from './Inbox';
@@ -7,6 +8,7 @@ import * as Sent from './Sent';
 
 
 export class Model extends Collection {
+  intl: Intl.Model;
   route: Router.Model;
   user: User.Model;
   inbox: Inbox.Model;
@@ -47,13 +49,14 @@ export const view = ({ model, nest, exec } : ViewProps<Model>) => (
 
 export const init = (
   route : Router.Model,
-  user : User.Model
+  user : User.Model,
+  intl : Intl.Model
 ) : Model => {
-  const inbox = Inbox.init(route, user);
-  const sent = Sent.init(route, user);
+  const inbox = Inbox.init(route, user, intl);
+  const sent = Sent.init(route, user, intl);
 
-  return new Model({ route, user, inbox, sent })
-  .depend(route)
+  return new Model({ route, user, inbox, sent, intl })
+  .depend(route).depend(intl)
   .nest(inbox, Commands.InboxCmd)
   .nest(sent, Commands.SentCmd)
 }

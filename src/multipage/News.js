@@ -13,5 +13,9 @@ export const view = ({ model, exec, nest } : ViewProps<Model>) => (
   </div>
 );
 
-export const init = (user: User.Model, letter: Object) : Model =>
+export const init = (
+  route: Router.Model,
+  user: User.Model,
+  intl: Intl.Model
+) : Model =>
   new Model();

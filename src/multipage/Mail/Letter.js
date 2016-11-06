@@ -3,7 +3,8 @@ import * as User from '../User';
 
 
 export class Model extends Collection {
-  user: User.Model,
+  intl: Intl.Model;
+  user: User.Model;
   title: String;
   text: String;
 };
@@ -24,10 +25,16 @@ export const view = ({ model, exec } : ViewProps<Model>) => (
   </div>
 );
 
-export const init = (user: User.Model, letter: Object) : Model =>
+export const init = (
+  user: User.Model,
+  intl: Intl.Model,
+  letter: Object
+) : Model =>
   new Model({
+    intl,
     user,
     title: letter.title,
     text: letter.text
   })
+  .depend(intl)
   .depend(user);

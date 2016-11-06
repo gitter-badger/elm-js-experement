@@ -1,5 +1,6 @@
 import { Cmd, Collection, ViewProps } from '../mangojuice';
 import * as Router from '../mangojuice/Router';
+import * as Intl from '../mangojuice/Intl';
 import { Routes } from './Routes';
 import * as User from './User';
 import * as News from './News';
@@ -8,6 +9,7 @@ import * as Letter from './Mail/Letter';
 
 
 export class Model extends Collection {
+  intl: Intl.Model;
   route: Router.Model;
   user: User.Model;
   mail: Mail.Model;
@@ -54,14 +56,15 @@ export view = ({ model, nest, exec } : ViewProps<Model>) => (
 export const init = () : Model => {
   const user = User.init();
   const route = Router.init(Routes);
-  const news = News.init(route, user);
-  const mail = Mail.init(route, user);
+  const intl = Intl.init(route);
+  const news = News.init(route, user, intl);
+  const mail = Mail.init(route, user, intl);
 
   return new Model({
-    user, route, news, mail,
+    user, route, news, mail, intl,
     notification: ''
   })
-  .depend(user).depend(route)
+  .depend(user).depend(route).depend(intl)
   .nest(news, Commands.NewsCmd)
   .nest(mail, Commands.MailCmd);
 };

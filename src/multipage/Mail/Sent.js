@@ -5,6 +5,7 @@ import { MailRoutes } from '../Routes';
 
 
 export class Model extends Collection {
+  intl: Intl.Model;
   user: User.Model;
   letters: Array;
 };
@@ -27,10 +28,15 @@ export const view = ({ model, nest } : ViewProps<Model>) => (
   </div>
 );
 
-export const init = (route: Router.Model, user: User.Model) : Model =>
+export const init = (
+  route: Router.Model,
+  user: User.Model,
+  intl: Intl.Model
+) : Model =>
   new Model({
+    intl,
     user,
     letters: []
   })
-  .depend(user)
+  .depend(user).depend(intl)
   .nest(route, Commands.RouterCmd);
