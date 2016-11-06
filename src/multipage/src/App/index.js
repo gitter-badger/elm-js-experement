@@ -1,6 +1,7 @@
 import { Cmd, Collection, Task, ViewProps } from 'mangojuice';
 import * as Router from 'mangojuice/Router';
 import * as Intl from 'mangojuice/Intl';
+import languages from '../languages';
 import * as User from '../Shared/User';
 import { Routes } from '../routes';
 import * as News from './News';
@@ -42,7 +43,7 @@ export const Messages = {
   title: 'APP.TITLE'
 };
 
-export view = ({ model, nest, exec } : ViewProps<Model>) => (
+export const view = ({ model, nest, exec } : ViewProps<Model>) => (
   <div>
     {!!model.notification && (
       <div>{model.notification}</div>
@@ -61,7 +62,7 @@ export view = ({ model, nest, exec } : ViewProps<Model>) => (
 export const init = () : Model => {
   const user = User.init();
   const route = Router.init(Routes);
-  const intl = Intl.init(route);
+  const intl = Intl.init(route, languages);
   const news = News.init(route, user, intl);
   const mail = Mail.init(route, user, intl);
 
