@@ -60,10 +60,15 @@ export const Commands = {
     ])
 };
 
+export const Messages = {
+  boxes: 'MAIL.INBOX.BOXES_TITLE',
+  letters: 'MAIL.INBOX.LETTERS_TITLE'
+};
+
 export const view = ({ model, exec, nest } : ViewProps<Model>}) => (
   <div>
     <div>
-      <h1>Boxes list</h1>
+      <h1>{model.intl.formatMessage(Messages.boxes)}</h1>
       <ul>
         {model.boxes.map(box => (
           <li>
@@ -76,7 +81,7 @@ export const view = ({ model, exec, nest } : ViewProps<Model>}) => (
     </div>
 
     <div>
-      <h2>Mails</h2>
+      <h2>{model.intl.formatMessage(Messages.letters)}</h2>
       {model.letters.map(letter => (
         <p>{nest(letter, Letter.view)}</p>
       ))}

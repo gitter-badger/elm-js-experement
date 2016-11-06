@@ -37,12 +37,16 @@ export const Commands = {
     ])
 };
 
+export const Messages = {
+  title: 'APP.TITLE'
+};
+
 export view = ({ model, nest, exec } : ViewProps<Model>) => (
   <div>
     {!!model.notification && (
       <div>{model.notification}</div>
     )}
-    <h1>Mango Mail App</h1>
+    <h1>{intl.model.formatMessage(Messages.title)}</h1>
     <div>{model.user.authorized
       ? <button onClick={exec(User.Commands.Login)}>Log in</button>
       : <button onClick={exec(User.Commands.Logout)}>Log out</button>}

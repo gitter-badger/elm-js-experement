@@ -20,6 +20,11 @@ export const Commands = {
   SentCmd: Cmd.middleware()
 };
 
+export const Messages = {
+  inbox: 'MAIL.INBOX_TITLE',
+  sent: 'MAIL.SENT_TITLE'
+};
+
 export const view = ({ model, nest, exec } : ViewProps<Model>) => (
   <div>
     <ul>
@@ -28,7 +33,7 @@ export const view = ({ model, nest, exec } : ViewProps<Model>) => (
           onClick={exec(MailRoutes.Inbox.with({ box: 0 }))}
           active={model.route.is(MailRoutes.Inbox)}
         >
-          Inbox
+          {model.intl.formatMessage(Messages.inbox)}
         </a>
       </li>
       <li>
@@ -36,7 +41,7 @@ export const view = ({ model, nest, exec } : ViewProps<Model>) => (
           onClick={exec(MailRoutes.Sent)}
           active={model.route.is(MailRoutes.Sent)}
         >
-          Sent
+          {model.intl.formatMessage(Messages.sent)}
         </a>
       </li>
     </ul>

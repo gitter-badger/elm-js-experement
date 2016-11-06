@@ -19,9 +19,13 @@ export const Commands = {
     ])
 };
 
+export const Messages = {
+  for: 'MAIL.SENT.FOR'
+};
+
 export const view = ({ model, nest } : ViewProps<Model>) => (
   <div>
-    <h2>Sent for {model.user.name}</h2>
+    <h2>{model.intl.formatMessage(Messages.for, model.user.name)}</h2>
     {model.letters.map(letter => (
       <p>{letter.title}</p>
     ))}

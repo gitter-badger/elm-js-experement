@@ -13,13 +13,19 @@ export const Commands = {
   Delete: Cmd.none()
 };
 
+export const Messages = {
+  delete: 'MAIL.LETTER.DELETE'
+}
+
 export const view = ({ model, exec } : ViewProps<Model>) => (
   <div>
     <h3>{model.title}</h3>
     <p>{model.text}</p>
     {model.user.authorized && (
       <div>
-        <button onClick={exec(Commands.Delete)}>Delete</button>
+        <button onClick={exec(Commands.Delete)}>
+          {model.intl.formatMessage(Messages.delete)}
+        </button>
       </div>
     )}
   </div>

@@ -1,15 +1,25 @@
 import { Collection, ViewProps } from '../mangojuice';
+import * as Router from '../../mangojuice/Router';
+import * as Intl from '../../mangojuice/Intl';
+import * as User from '../User';
 
 
 export class Model extends Collection {
+  intl: Intl.Model;
+  route: Router.Model;
+  user: User.Model;
 };
 
 export const Commands = {
 };
 
+export const Messages = {
+  title: 'NEWS.TITLE'
+};
+
 export const view = ({ model, exec, nest } : ViewProps<Model>) => (
   <div>
-    News route
+    {model.intl.formatMessage(Messages.title)}
   </div>
 );
 
@@ -18,4 +28,5 @@ export const init = (
   user: User.Model,
   intl: Intl.Model
 ) : Model =>
-  new Model();
+  new Model({ intl, user, route })
+  .depend(intl);
