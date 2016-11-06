@@ -2,7 +2,7 @@ import { Cmd, Collection, Task, ViewProps } from 'mangojuice';
 import * as Router from 'mangojuice/Router';
 import * as Intl from 'mangojuice/Intl';
 import languages from '../languages';
-import * as User from '../Shared/User';
+import * as User from '../shared/User';
 import { Routes } from '../routes';
 import * as News from './News';
 import * as Mail from './Mail';

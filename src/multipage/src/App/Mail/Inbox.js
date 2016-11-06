@@ -1,7 +1,7 @@
 import { Cmd, Collection, Task, ViewProps } from 'mangojuice';
 import * as Router from 'mangojuice/Router';
 import * as Intl from 'mangojuice/Intl';
-import * as User from '../../Shared/User';
+import * as User from '../../shared/User';
 import { MailRoutes } from '../../routes';
 import * as Letter from './Letter';
 
