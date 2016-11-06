@@ -65,7 +65,7 @@ export const Messages = {
   letters: 'MAIL.INBOX.LETTERS_TITLE'
 };
 
-export const view = ({ model, exec, nest } : ViewProps<Model>}) => (
+export const view = ({ model, exec, nest } : ViewProps<Model>) => (
   <div>
     <div>
       <h1>{model.intl.formatMessage(Messages.boxes)}</h1>
@@ -92,7 +92,7 @@ export const view = ({ model, exec, nest } : ViewProps<Model>}) => (
 export const init = (
   route : Router.Model,
   user : User.Model,
-  intl : Intl.Model,
+  intl : Intl.Model
 ) : Model =>
   new Model({
     intl,
