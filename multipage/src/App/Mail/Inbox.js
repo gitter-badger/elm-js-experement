@@ -72,7 +72,7 @@ export const view = ({ model, exec, nest } : ViewProps<Model>}) => (
       <ul>
         {model.boxes.map(box => (
           <li>
-            <a onClick={exec(MailRoutes.Inbox.with({ box: box.display_name }))}>
+            <a onClick={exec(MailRoutes.Inbox.with({ box: box.id }))}>
               {box.title}
             </a>
           </li>
