@@ -30,8 +30,8 @@ export const Commands = {
   BoxesGetFailed: Cmd.nope(),
   GetBoxLetters: Cmd.execLatest(() =>
     new Task(function* (model: Model) {
-      yield Cmd.delay(2000);
-      const data = yield Cmd.call(getMailsList, model.route.box);
+      yield Task.delay(2000);
+      const data = yield Task.call(getMailsList, model.route.box);
       return data;
     })
     .success(Commands.LettersGetSuccess)
