@@ -45,9 +45,9 @@ export const view = ({ model, nest, exec } : ViewProps<Model>) => (
         </a>
       </li>
     </ul>
-    {model.route.switch()
-      .when(MailRoutes.Inbox, () => nest(model.inbox, Inbox.view))
-      .when(MailRoutes.Sent, () => nest(model.sent, Sent.view))
+    {model.route.when()
+      .is(MailRoutes.Inbox, () => nest(model.inbox, Inbox.view))
+      .is(MailRoutes.Sent, () => nest(model.sent, Sent.view))
     }
   </div>
 );
@@ -61,7 +61,7 @@ export const init = (
   const sent = Sent.init(route, user, intl);
 
   return new Model({ route, user, inbox, sent, intl })
-  .depend(route).depend(intl)
-  .nest(inbox, Commands.InboxCmd)
-  .nest(sent, Commands.SentCmd)
+  .dependsOf(route, intl)
+  .applyMiddleware(inbox, Commands.InboxCmd)
+  .applyMiddleware(sent, Commands.SentCmd)
 }

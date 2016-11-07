@@ -29,4 +29,4 @@ export const init = (
   intl: Intl.Model
 ) : Model =>
   new Model({ intl, user, route })
-  .depend(intl);
+  .dependsOf(intl);

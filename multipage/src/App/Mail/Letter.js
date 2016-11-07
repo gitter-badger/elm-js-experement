@@ -43,5 +43,4 @@ export const init = (
     title: letter.title,
     text: letter.text
   })
-  .depend(intl)
-  .depend(user);
+  .dependsOf(intl, user);

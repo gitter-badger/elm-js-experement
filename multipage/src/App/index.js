@@ -33,7 +33,7 @@ export const Commands = {
   }))
   NewsCmd: Cmd.middleware(),
   MailCmd: Cmd.middleware()
-    .when(Letter.Commands.Delete, (model, letter, letterCmd) => [
+    .on(Letter.Commands.Delete, (model, letter, letterCmd) => [
       Commands.ShowNotification.with('Letter removed succeessfully!'),
       letterCmd
     ])
@@ -48,14 +48,14 @@ export const view = ({ model, nest, exec } : ViewProps<Model>) => (
     {!!model.notification && (
       <div>{model.notification}</div>
     )}
-    <h1>{intl.model.formatMessage(Messages.title)}</h1>
+    <h1>{model.intl.formatMessage(Messages.title)}</h1>
     <div>{model.user.authorized
       ? <button onClick={exec(User.Commands.Login)}>Log in</button>
       : <button onClick={exec(User.Commands.Logout)}>Log out</button>}
     </div>
-    {model.route.switch()
-      .when(Routes.Mail, () => nest(model.mail, Mail.view))
-      .when(Routes.News, () => nest(model.news, News.view))}
+    {model.route.when()
+      .is(Routes.Mail, () => nest(model.mail, Mail.view))
+      .is(Routes.News, () => nest(model.news, News.view))}
   </div>
 );
 
@@ -70,7 +70,7 @@ export const init = () : Model => {
     user, route, news, mail, intl,
     notification: ''
   })
-  .depend(user).depend(route).depend(intl)
-  .nest(news, Commands.NewsCmd)
-  .nest(mail, Commands.MailCmd);
+  .dependsOf(user, route, intl)
+  .applyMiddleware(news, Commands.NewsCmd)
+  .applyMiddleware(mail, Commands.MailCmd);
 };

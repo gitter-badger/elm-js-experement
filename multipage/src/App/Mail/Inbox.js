@@ -46,9 +46,9 @@ export const Commands = {
   LettersGetFailed: Cmd.nope(),
   FilterOutLetter: Cmd.update((model, id) => ({
     letters: model.letters.filter(x => x.id !== id)
-  }))
+  })),
   LetterCmd: Cmd.middleware()
-    .when(Letter.Commands.Delete, (model, letter, letterCmd) => [
+    .on(Letter.Commands.Delete, (model, letter, letterCmd) => [
       Commands.FilterOutLetter.with(letter.id),
       letterCmd
     ]),
@@ -101,8 +101,8 @@ export const init = (
     boxes: [],
     letters: []
   })
-  .depend(intl)
-  .nest(route, Commands.RouterCmd)
+  .dependsOf(intl)
+  .applyMiddleware(route, Commands.RouterCmd)
 
 
 export const getBoxesList = () => {

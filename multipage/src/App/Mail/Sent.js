@@ -42,5 +42,5 @@ export const init = (
     user,
     letters: []
   })
-  .depend(user).depend(intl)
-  .nest(route, Commands.RouterCmd);
+  .dependsOf(user, intl)
+  .applyMiddleware(route, Commands.RouterCmd);
