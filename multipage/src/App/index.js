@@ -1,4 +1,4 @@
-import { Cmd, Collection, Task, ViewProps } from 'mangojuice';
+import { Cmd, Block, Task, ViewProps } from 'mangojuice';
 import * as Router from 'mangojuice/Router';
 import * as Intl from 'mangojuice/Intl';
 import languages from '../languages';
@@ -9,7 +9,7 @@ import * as Mail from './Mail';
 import * as Letter from './Mail/Letter';
 
 
-export class Model extends Collection {
+export class Model extends Block {
   intl: Intl.Model;
   route: Router.Model;
   user: User.Model;
@@ -43,19 +43,19 @@ export const Messages = {
   title: 'APP.TITLE'
 };
 
-export const view = ({ model, nest, exec } : ViewProps<Model>) => (
+export const View = ({ model } : ViewProps<Model>) => (
   <div>
     {!!model.notification && (
       <div>{model.notification}</div>
     )}
-    <h1>{intl.model.formatMessage(Messages.title)}</h1>
+    <h1>{model.intl.formatMessage(Messages.title)}</h1>
     <div>{model.user.authorized
-      ? <button onClick={exec(User.Commands.Login)}>Log in</button>
-      : <button onClick={exec(User.Commands.Logout)}>Log out</button>}
+      ? <button onClick={model.exec(User.Commands.Login)}>Log in</button>
+      : <button onClick={model.exec(User.Commands.Logout)}>Log out</button>}
     </div>
     {model.route.switch()
-      .when(Routes.Mail, () => nest(model.mail, Mail.view))
-      .when(Routes.News, () => nest(model.news, News.view))}
+      .when(Routes.Mail, () => <Mail.View model={model.mail} />)
+      .when(Routes.News, () => <News.View model={model.news} />)}
   </div>
 );
 
@@ -70,7 +70,6 @@ export const init = () : Model => {
     user, route, news, mail, intl,
     notification: ''
   })
-  .depend(user).depend(route).depend(intl)
-  .nest(news, Commands.NewsCmd)
-  .nest(mail, Commands.MailCmd);
+  .middleware(News.Model, Commands.NewsCmd)
+  .middleware(Mail.Model, Commands.MailCmd)
 };

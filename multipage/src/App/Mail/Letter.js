@@ -1,9 +1,9 @@
-import { Cmd, Collection, ViewProps } from '../../mangojuice';
+import { Cmd, Block, ViewProps } from '../../mangojuice';
 import * as Intl from 'mangojuice/Intl';
 import * as User from '../../shared/User';
 
 
-export class Model extends Collection {
+export class Model extends Block {
   intl: Intl.Model;
   user: User.Model;
   title: String;
@@ -18,13 +18,13 @@ export const Messages = {
   delete: 'MAIL.LETTER.DELETE'
 }
 
-export const view = ({ model, exec } : ViewProps<Model>) => (
+export const View = ({ model } : ViewProps<Model>) => (
   <div>
     <h3>{model.title}</h3>
     <p>{model.text}</p>
     {model.user.authorized && (
       <div>
-        <button onClick={exec(Commands.Delete)}>
+        <button onClick={model.exec(Commands.Delete)}>
           {model.intl.formatMessage(Messages.delete)}
         </button>
       </div>
@@ -42,6 +42,4 @@ export const init = (
     user,
     title: letter.title,
     text: letter.text
-  })
-  .depend(intl)
-  .depend(user);
+  });

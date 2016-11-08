@@ -1,10 +1,10 @@
-import { Collection, ViewProps } from 'mangojuice';
+import { Block, ViewProps } from 'mangojuice';
 import * as Router from 'mangojuice/Router';
 import * as Intl from 'mangojuice/Intl';
 import * as User from '../../shared/User';
 
 
-export class Model extends Collection {
+export class Model extends Block {
   intl: Intl.Model;
   route: Router.Model;
   user: User.Model;
@@ -17,7 +17,7 @@ export const Messages = {
   title: 'NEWS.TITLE'
 };
 
-export const view = ({ model, exec, nest } : ViewProps<Model>) => (
+export const view = ({ model } : ViewProps<Model>) => (
   <div>
     {model.intl.formatMessage(Messages.title)}
   </div>
@@ -29,4 +29,3 @@ export const init = (
   intl: Intl.Model
 ) : Model =>
   new Model({ intl, user, route })
-  .depend(intl);

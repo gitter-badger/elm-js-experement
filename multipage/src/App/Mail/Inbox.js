@@ -1,4 +1,4 @@
-import { Cmd, Collection, Task, ViewProps } from 'mangojuice';
+import { Cmd, Block, Task, ViewProps } from 'mangojuice';
 import * as Router from 'mangojuice/Router';
 import * as Intl from 'mangojuice/Intl';
 import * as User from '../../shared/User';
@@ -6,7 +6,7 @@ import { MailRoutes } from '../../routes';
 import * as Letter from './Letter';
 
 
-export class Model extends Collection {
+export class Model extends Block {
   intl: Intl.Model;
   route: Router.Model;
   user: User.Model;
@@ -37,12 +37,9 @@ export const Commands = {
     .success(Commands.LettersGetSuccess)
     .fail(Commands.LettersGetFailed)
   ),
-  LettersGetSuccess: Cmd.update((model: Model, nextLetters: Array) => {
-    const letters = nextLetters.map(l => Letter.init(model.user, model.intl, l));
-    const updateModel = new Model({ letters });
-    letters.forEach(l => updateModel.nest(l, Commands.LetterCmd));
-    return updateModel;
-  }),
+  LettersGetSuccess: Cmd.update((model: Model, nextLetters: Array) => ({
+    letters: nextLetters.map(l => Letter.init(model.user, model.intl, l))
+  })),
   LettersGetFailed: Cmd.nope(),
   FilterOutLetter: Cmd.update((model, id) => ({
     letters: model.letters.filter(x => x.id !== id)
@@ -65,14 +62,14 @@ export const Messages = {
   letters: 'MAIL.INBOX.LETTERS_TITLE'
 };
 
-export const view = ({ model, exec, nest } : ViewProps<Model>) => (
+export const View = ({ model } : ViewProps<Model>) => (
   <div>
     <div>
       <h1>{model.intl.formatMessage(Messages.boxes)}</h1>
       <ul>
         {model.boxes.map(box => (
           <li>
-            <a onClick={exec(MailRoutes.Inbox.with({ box: box.id }))}>
+            <a onClick={model.exec(MailRoutes.Inbox.with({ box: box.id }))}>
               {box.title}
             </a>
           </li>
@@ -83,7 +80,7 @@ export const view = ({ model, exec, nest } : ViewProps<Model>) => (
     <div>
       <h2>{model.intl.formatMessage(Messages.letters)}</h2>
       {model.letters.map(letter => (
-        <p>{nest(letter, Letter.view)}</p>
+        <Letter.View model={letter} />
       ))}
     </div>
   </div>
@@ -101,8 +98,8 @@ export const init = (
     boxes: [],
     letters: []
   })
-  .depend(intl)
-  .nest(route, Commands.RouterCmd)
+  .middleware(Router.Model, Commands.RouterCmd)
+  .middleware(Letter.Model, Commands.LetterCmd)
 
 
 export const getBoxesList = () => {

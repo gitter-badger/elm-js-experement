@@ -1,10 +1,10 @@
-import { Cmd, Collection, ViewProps } from 'mangojuice';
+import { Cmd, Block, ViewProps } from 'mangojuice';
 import * as Router from 'mangojuice/Router';
 import * as User from '../../shared/User';
 import { MailRoutes } from '../../routes';
 
 
-export class Model extends Collection {
+export class Model extends Block {
   intl: Intl.Model;
   user: User.Model;
   letters: Array;
@@ -23,7 +23,7 @@ export const Messages = {
   for: 'MAIL.SENT.FOR'
 };
 
-export const view = ({ model, nest } : ViewProps<Model>) => (
+export const View = ({ model } : ViewProps<Model>) => (
   <div>
     <h2>{model.intl.formatMessage(Messages.for, model.user.name)}</h2>
     {model.letters.map(letter => (
@@ -38,9 +38,7 @@ export const init = (
   intl: Intl.Model
 ) : Model =>
   new Model({
-    intl,
-    user,
+    route, intl, user,
     letters: []
   })
-  .depend(user).depend(intl)
-  .nest(route, Commands.RouterCmd);
+  .middleware(Router.Model, Commands.RouterCmd);
