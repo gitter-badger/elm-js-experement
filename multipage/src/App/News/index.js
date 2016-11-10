@@ -17,7 +17,7 @@ export const Messages = {
   title: 'NEWS.TITLE'
 };
 
-export const view = ({ model, exec, nest } : ViewProps<Model>) => (
+export const view = ({ model } : ViewProps<Model>) => (
   <div>
     {model.intl.formatMessage(Messages.title)}
   </div>
@@ -29,4 +29,3 @@ export const init = (
   intl: Intl.Model
 ) : Model =>
   new Model({ intl, user, route })
-  .dependsOf(intl);

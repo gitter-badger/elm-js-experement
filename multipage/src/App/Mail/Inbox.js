@@ -37,12 +37,9 @@ export const Commands = {
     .success(Commands.LettersGetSuccess)
     .fail(Commands.LettersGetFailed)
   ),
-  LettersGetSuccess: Cmd.update((model: Model, nextLetters: Array) => {
-    const letters = nextLetters.map(l => Letter.init(model.user, model.intl, l));
-    const updateModel = new Model({ letters });
-    letters.forEach(l => updateModel.nest(l, Commands.LetterCmd));
-    return updateModel;
-  }),
+  LettersGetSuccess: Cmd.update((model: Model, nextLetters: Array) => ({
+    letters: nextLetters.map(l => Letter.init(model.user, model.intl, l))
+  })),
   LettersGetFailed: Cmd.nope(),
   FilterOutLetter: Cmd.update((model, id) => ({
     letters: model.letters.filter(x => x.id !== id)
@@ -65,7 +62,7 @@ export const Messages = {
   letters: 'MAIL.INBOX.LETTERS_TITLE'
 };
 
-export const view = ({ model, exec, nest } : ViewProps<Model>) => (
+export const View = ({ model, nest, exec } : ViewProps<Model>) => (
   <div>
     <div>
       <h1>{model.intl.formatMessage(Messages.boxes)}</h1>
@@ -82,9 +79,7 @@ export const view = ({ model, exec, nest } : ViewProps<Model>) => (
 
     <div>
       <h2>{model.intl.formatMessage(Messages.letters)}</h2>
-      {model.letters.map(letter => (
-        <p>{nest(letter, Letter.view)}</p>
-      ))}
+      {model.letters.map(letter => nest(letter, Letter.View))}
     </div>
   </div>
 );
@@ -101,8 +96,8 @@ export const init = (
     boxes: [],
     letters: []
   })
-  .dependsOf(intl)
-  .applyMiddleware(route, Commands.RouterCmd)
+  .middleware(Router.Model, Commands.RouterCmd)
+  .middleware(Letter.Model, Commands.LetterCmd)
 
 
 export const getBoxesList = () => {

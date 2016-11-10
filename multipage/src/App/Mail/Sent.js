@@ -23,7 +23,7 @@ export const Messages = {
   for: 'MAIL.SENT.FOR'
 };
 
-export const view = ({ model, nest } : ViewProps<Model>) => (
+export const View = ({ model } : ViewProps<Model>) => (
   <div>
     <h2>{model.intl.formatMessage(Messages.for, model.user.name)}</h2>
     {model.letters.map(letter => (
@@ -38,9 +38,7 @@ export const init = (
   intl: Intl.Model
 ) : Model =>
   new Model({
-    intl,
-    user,
+    route, intl, user,
     letters: []
   })
-  .dependsOf(user, intl)
-  .applyMiddleware(route, Commands.RouterCmd);
+  .middleware(Router.Model, Commands.RouterCmd);

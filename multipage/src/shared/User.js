@@ -1,4 +1,4 @@
-import { Cmd, Collection } from './mangojuice';
+import { Cmd, Collection } from 'mangojuice';
 
 
 export class Model extends Collection {

@@ -25,7 +25,7 @@ export const Messages = {
   sent: 'MAIL.SENT_TITLE'
 };
 
-export const view = ({ model, nest, exec } : ViewProps<Model>) => (
+export const View = ({ model, nest, exec } : ViewProps<Model>) => (
   <div>
     <ul>
       <li>
@@ -60,8 +60,9 @@ export const init = (
   const inbox = Inbox.init(route, user, intl);
   const sent = Sent.init(route, user, intl);
 
-  return new Model({ route, user, inbox, sent, intl })
-  .dependsOf(route, intl)
-  .applyMiddleware(inbox, Commands.InboxCmd)
-  .applyMiddleware(sent, Commands.SentCmd)
+  return new Model({
+    route, user, inbox, sent, intl
+  })
+  .middleware(Inbox.Model, Commands.InboxCmd)
+  .middleware(Sent.Model, Commands.SentCmd)
 }

@@ -1,4 +1,4 @@
-import { Cmd, Collection, ViewProps } from '../../mangojuice';
+import { Cmd, Collection, ViewProps } from 'mangojuice';
 import * as Intl from 'mangojuice/Intl';
 import * as User from '../../shared/User';
 
@@ -18,7 +18,7 @@ export const Messages = {
   delete: 'MAIL.LETTER.DELETE'
 }
 
-export const view = ({ model, exec } : ViewProps<Model>) => (
+export const View = ({ model, exec } : ViewProps<Model>) => (
   <div>
     <h3>{model.title}</h3>
     <p>{model.text}</p>
@@ -42,5 +42,4 @@ export const init = (
     user,
     title: letter.title,
     text: letter.text
-  })
-  .dependsOf(intl, user);
+  });

@@ -43,7 +43,7 @@ export const Messages = {
   title: 'APP.TITLE'
 };
 
-export const view = ({ model, nest, exec } : ViewProps<Model>) => (
+export const View = ({ model, nest, exec } : ViewProps<Model>) => (
   <div>
     {!!model.notification && (
       <div>{model.notification}</div>
@@ -55,7 +55,8 @@ export const view = ({ model, nest, exec } : ViewProps<Model>) => (
     </div>
     {model.route.when()
       .is(Routes.Mail, () => nest(model.mail, Mail.view))
-      .is(Routes.News, () => nest(model.news, News.view))}
+      .is(Routes.News, () => nest(model.news, News.view))
+    }
   </div>
 );
 
@@ -70,7 +71,6 @@ export const init = () : Model => {
     user, route, news, mail, intl,
     notification: ''
   })
-  .dependsOf(user, route, intl)
-  .applyMiddleware(news, Commands.NewsCmd)
-  .applyMiddleware(mail, Commands.MailCmd);
+  .middleware(News.Model, Commands.NewsCmd)
+  .middleware(Mail.Model, Commands.MailCmd)
 };
