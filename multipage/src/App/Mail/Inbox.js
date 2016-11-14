@@ -1,16 +1,10 @@
-import { Cmd, Collection, Task, ViewProps } from 'mangojuice';
-import * as Router from 'mangojuice/Router';
-import * as Intl from 'mangojuice/Intl';
-import * as User from '../../shared/User';
+import { Cmd, BaseModel, Task, ViewProps, InitProps } from 'mangojuice';
 import { MailRoutes } from '../../routes';
 import * as Letter from './Letter';
 
 
-export class Model extends Collection {
-  intl: Intl.Model;
-  route: Router.Model;
-  user: User.Model;
-  boxes: Array;
+export class Model extends BaseModel {
+  boxes: Array<any>;
   letters: Array<Letter.Model>;
 };
 
@@ -38,7 +32,7 @@ export const Commands = {
     .fail(Commands.LettersGetFailed)
   ),
   LettersGetSuccess: Cmd.update((model: Model, nextLetters: Array) => ({
-    letters: nextLetters.map(l => Letter.init(model.user, model.intl, l))
+    letters: nextLetters.map(l => model.nest(Commands.LetterCmd, Letter.init, l))
   })),
   LettersGetFailed: Cmd.nope(),
   FilterOutLetter: Cmd.update((model, id) => ({
@@ -50,7 +44,7 @@ export const Commands = {
       letterCmd
     ]),
   RouterCmd: Cmd.middleware()
-    .default((model, route, routeCmd) => [
+    .anyCommand((model, route, routeCmd) => [
       route.firstTime(MailRoutes.Inbox) && Commands.UpdateBoxesList,
       route.changed(MailRoutes.Inbox) && Commands.GetBoxLetters,
       routeCmd
@@ -62,10 +56,13 @@ export const Messages = {
   letters: 'MAIL.INBOX.LETTERS_TITLE'
 };
 
-export const View = ({ model, nest, exec } : ViewProps<Model>) => (
+export const View = (
+  { model, shared, nest, exec }
+  : ViewProps<Model, Shared>
+) => (
   <div>
     <div>
-      <h1>{model.intl.formatMessage(Messages.boxes)}</h1>
+      <h1>{shared.intl.formatMessage(Messages.boxes)}</h1>
       <ul>
         {model.boxes.map(box => (
           <li>
@@ -78,26 +75,22 @@ export const View = ({ model, nest, exec } : ViewProps<Model>) => (
     </div>
 
     <div>
-      <h2>{model.intl.formatMessage(Messages.letters)}</h2>
+      <h2>{shared.intl.formatMessage(Messages.letters)}</h2>
       {model.letters.map(letter => nest(letter, Letter.View))}
     </div>
   </div>
 );
 
 export const init = (
-  route : Router.Model,
-  user : User.Model,
-  intl : Intl.Model
-) : Model =>
-  new Model({
-    intl,
-    user,
-    route,
+  { nest, shared, subscribe }
+  : InitProps<Model, Shared>
+) => ({
+  model: new Model({
     boxes: [],
     letters: []
-  })
-  .middleware(Router.Model, Commands.RouterCmd)
-  .middleware(Letter.Model, Commands.LetterCmd)
+  }),
+  subs: subscribe(shared.route, Commands.RouterCmd)
+})
 
 
 export const getBoxesList = () => {

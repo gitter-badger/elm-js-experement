@@ -1,36 +1,29 @@
-import { Cmd, Collection, Task, ViewProps } from 'mangojuice';
-import * as Router from 'mangojuice/Router';
-import * as Intl from 'mangojuice/Intl';
-import languages from '../languages';
-import * as User from '../shared/User';
-import { Routes } from '../routes';
+import { Cmd, BaseModel, Task, ViewProps, InitProps } from 'mangojuice';
+import { Model as Shared } from '../Shared';
 import * as News from './News';
 import * as Mail from './Mail';
 import * as Letter from './Mail/Letter';
 
 
-export class Model extends Collection {
-  intl: Intl.Model;
-  route: Router.Model;
-  user: User.Model;
+export class Model extends BaseModel {
   mail: Mail.Model;
   news: News.Model;
-  notification: String;
+  notification: string;
 };
 
 export const Commands = {
-  ShowNotification: Cmd.update((model : Model, message : String ) =>
-    new Model({ notification: message })
-    .command(Commands.DelayHideNotification)
-  ),
+  ShowNotification: Cmd.batch((model : Model, message : String) => [
+    Commands.SetNotificationMsg.with(message),
+    Commands.DelayHideNotification
+  ]),
   DelayHideNotification: Cmd.execLatest((model : Model) =>
     new Task(function* () { yield Task.delay(5000) })
-    .success(Commands.HideNotification)
+    .success(Commands.SetNotificationMsg.with(''))
     .fail(Cmd.nope())
   ),
-  HideNotification: Cmd.update((model : Model) => ({
-    notification: ''
-  }))
+  SetNotificationMsg: Cmd.update((model : Model, message : String) => ({
+    notification: message
+  })),
   NewsCmd: Cmd.middleware(),
   MailCmd: Cmd.middleware()
     .on(Letter.Commands.Delete, (model, letter, letterCmd) => [
@@ -43,34 +36,31 @@ export const Messages = {
   title: 'APP.TITLE'
 };
 
-export const View = ({ model, nest, exec } : ViewProps<Model>) => (
+export const View = (
+  { model, shared, nest, exec }
+  : ViewProps<Model, Shared>
+) => (
   <div>
     {!!model.notification && (
       <div>{model.notification}</div>
     )}
-    <h1>{model.intl.formatMessage(Messages.title)}</h1>
-    <div>{model.user.authorized
+    <h1>{shared.intl.formatMessage(Messages.title)}</h1>
+    <div>{shared.user.authorized
       ? <button onClick={exec(User.Commands.Login)}>Log in</button>
       : <button onClick={exec(User.Commands.Logout)}>Log out</button>}
     </div>
-    {model.route.when()
-      .is(Routes.Mail, () => nest(model.mail, Mail.view))
-      .is(Routes.News, () => nest(model.news, News.view))
-    }
+    {shared.route.when()
+      .is(Routes.Mail, () => nest(model.mail, Commands.MailCmd, Mail.View))
+      .is(Routes.News, () => nest(model.news, Commands.NewsCmd, News.View))}
   </div>
 );
 
-export const init = () : Model => {
-  const user = User.init();
-  const route = Router.init(Routes);
-  const intl = Intl.init(route, languages);
-  const news = News.init(route, user, intl);
-  const mail = Mail.init(route, user, intl);
-
-  return new Model({
-    user, route, news, mail, intl,
+export const init = (
+  { nest, shared }
+  : InitProps<Model, Shared>
+) =>
+  new Model({
+    news: nest(Commands.NewsCmd, News.init),
+    mail: nest(Commands.MailCmd, Mail.init),
     notification: ''
   })
-  .middleware(News.Model, Commands.NewsCmd)
-  .middleware(Mail.Model, Commands.MailCmd)
-};

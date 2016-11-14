@@ -1,7 +1,7 @@
-import { Cmd, Collection } from 'mangojuice';
+import { Cmd, BaseModel } from 'mangojuice';
 
 
-export class Model extends Collection {
+export class Model extends BaseModel {
   authorized: Boolean;
   name: String;
 }

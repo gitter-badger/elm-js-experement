@@ -1,4 +1,4 @@
-import { Router } from './mangojuice';
+import { Router } from 'mangojuice';
 
 
 export const MailRoutes = {

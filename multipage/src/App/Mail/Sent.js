@@ -1,21 +1,18 @@
-import { Cmd, Collection, ViewProps } from 'mangojuice';
+import { Cmd, BaseModel, ViewProps, InitProps } from 'mangojuice';
 import * as Router from 'mangojuice/Router';
-import * as User from '../../shared/User';
+import { Model as Shared } from '../../Shared';
 import { MailRoutes } from '../../routes';
 
 
-export class Model extends Collection {
-  intl: Intl.Model;
-  user: User.Model;
-  letters: Array;
+export class Model extends BaseModel {
+  letters: Array<any>;
 };
 
 export const Commands = {
   InitSentLetters: Cmd.none(),
   RouterCmd: Cmd.middleware()
-    .default((model, route, routeCmd) => [
-      route.firstTime(MailRoutes.Sent) && Commands.InitSentLetters,
-      routeCmd
+    .anyCommand((model : Model, route : Router.Model) => [
+      route.firstTime(MailRoutes.Sent) && Commands.InitSentLetters
     ])
 };
 
@@ -23,9 +20,12 @@ export const Messages = {
   for: 'MAIL.SENT.FOR'
 };
 
-export const View = ({ model } : ViewProps<Model>) => (
+export const View = (
+  { model, shared }
+  : ViewProps<Model, Shared>
+) => (
   <div>
-    <h2>{model.intl.formatMessage(Messages.for, model.user.name)}</h2>
+    <h2>{shared.intl.formatMessage(Messages.for, model.user.name)}</h2>
     {model.letters.map(letter => (
       <p>{letter.title}</p>
     ))}
@@ -33,12 +33,9 @@ export const View = ({ model } : ViewProps<Model>) => (
 );
 
 export const init = (
-  route: Router.Model,
-  user: User.Model,
-  intl: Intl.Model
-) : Model =>
-  new Model({
-    route, intl, user,
-    letters: []
-  })
-  .middleware(Router.Model, Commands.RouterCmd);
+  { nest, shared, subscribe }
+  : InitProps<Model, Shared>
+) => ({
+  model: new Model({ letters: [] }),
+  subs: subscribe(shared.route, Commands.RouterCmd)
+});

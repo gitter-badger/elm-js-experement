@@ -1,13 +1,8 @@
-import { Collection, ViewProps } from 'mangojuice';
-import * as Router from 'mangojuice/Router';
-import * as Intl from 'mangojuice/Intl';
-import * as User from '../../shared/User';
+import { BaseModel, ViewProps, InitProps } from 'mangojuice';
+import { Model as Shared } from '../../Shared';
 
 
-export class Model extends Collection {
-  intl: Intl.Model;
-  route: Router.Model;
-  user: User.Model;
+export class Model extends BaseModel {
 };
 
 export const Commands = {
@@ -17,15 +12,17 @@ export const Messages = {
   title: 'NEWS.TITLE'
 };
 
-export const view = ({ model } : ViewProps<Model>) => (
+export const view = (
+  { model, shared, nest, exec }
+  : ViewProps<Model, Shared>
+) => (
   <div>
-    {model.intl.formatMessage(Messages.title)}
+    {shared.intl.formatMessage(Messages.title)}
   </div>
 );
 
 export const init = (
-  route: Router.Model,
-  user: User.Model,
-  intl: Intl.Model
-) : Model =>
-  new Model({ intl, user, route })
+  { nest, shared }
+  : InitProps<Model, Shared>
+) =>
+  new Model()

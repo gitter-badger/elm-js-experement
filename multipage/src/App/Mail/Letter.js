@@ -1,13 +1,10 @@
-import { Cmd, Collection, ViewProps } from 'mangojuice';
-import * as Intl from 'mangojuice/Intl';
-import * as User from '../../shared/User';
+import { Cmd, BaseModel, ViewProps, InitProps } from 'mangojuice';
+import { Model as Shared } from '../../Shared';
 
 
-export class Model extends Collection {
-  intl: Intl.Model;
-  user: User.Model;
-  title: String;
-  text: String;
+export class Model extends BaseModel {
+  title: string;
+  text: string;
 };
 
 export const Commands = {
@@ -18,14 +15,17 @@ export const Messages = {
   delete: 'MAIL.LETTER.DELETE'
 }
 
-export const View = ({ model, exec } : ViewProps<Model>) => (
+export const View = (
+  { model, shared, exec }
+  : ViewProps<Model, Shared>
+) => (
   <div>
     <h3>{model.title}</h3>
     <p>{model.text}</p>
-    {model.user.authorized && (
+    {shared.user.authorized && (
       <div>
         <button onClick={exec(Commands.Delete)}>
-          {model.intl.formatMessage(Messages.delete)}
+          {shared.intl.formatMessage(Messages.delete)}
         </button>
       </div>
     )}
@@ -33,13 +33,10 @@ export const View = ({ model, exec } : ViewProps<Model>) => (
 );
 
 export const init = (
-  user: User.Model,
-  intl: Intl.Model,
+  { nest, shared } : InitProps<Model, Shared>,
   letter: Object
-) : Model =>
+) =>
   new Model({
-    intl,
-    user,
     title: letter.title,
     text: letter.text
   });
