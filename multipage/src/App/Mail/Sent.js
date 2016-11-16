@@ -1,11 +1,13 @@
-import { Cmd } from 'mangojuice';
-import { ViewProps, InitProps, InitModel } from 'mangojuice/types';
-import { Model as SharedModel } from '../../Shared';
+// @flow
+import type { ViewProps, InitProps, InitModel, CmdProps } from '../../../../mangojuice/types';
+import type { Model as SharedModel } from '../../Shared';
+import React from 'react';
+import { Cmd } from '../../../../mangojuice';
 import { MailRoutes } from '../../routes';
-import * as Router from 'mangojuice/Router';
+import * as Router from '../../../../mangojuice/Router';
 
 
-export type Model {
+export type Model = {
   letters: Array<any>
 };
 
@@ -33,10 +35,10 @@ export const View = (
 );
 
 export const init = (
-  { nest, shared }
-  : InitProps<Model, SharedModel>
+  { shared, nest, subscribe }
+  : InitProps<SharedModel>
 ) : InitModel<Model> => ({
-  subs: subscribe(shared.route, Commands.RouterCmd)
+  subs: subscribe(shared.route, Commands.RouterCmd),
   model: {
     letters: []
   }

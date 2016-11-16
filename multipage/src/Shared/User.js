@@ -1,10 +1,11 @@
-import { Cmd } from 'mangojuice';
-import { InitProps, InitModel } from 'mangojuice/types';
+// @flow
+import type { InitSharedProps, InitModel } from '../../../mangojuice/types';
+import { Cmd } from '../../../mangojuice';
 
 
-export type Model {
-  authorized: Boolean,
-  name: String
+export type Model = {
+  authorized: bool,
+  name: string
 };
 
 export const Commands = {
@@ -18,7 +19,7 @@ export const Commands = {
 
 export const init = (
   { nest }
-  : InitProps<Model>
+  : InitSharedProps
 ) : InitModel<Model> => ({
   bindCommands: Commands,
   model: {

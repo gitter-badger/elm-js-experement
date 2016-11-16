@@ -1,8 +1,11 @@
-import { ViewProps, InitProps, InitModel } from 'mangojuice/types';
-import { Model as SharedModel } from '../../Shared';
+// @flow
+import type { ViewProps, InitProps, InitModel } from '../../../../mangojuice/types';
+import type { Model as SharedModel } from '../../Shared';
+import React from 'react';
 
 
-export type Model {
+export type Model = {
+  news: Array<any>
 };
 
 export const Commands = {
@@ -12,7 +15,7 @@ export const Messages = {
   title: 'NEWS.TITLE'
 };
 
-export const view = (
+export const View = (
   { model, shared, nest, exec }
   : ViewProps<Model, SharedModel>
 ) => (
@@ -23,6 +26,7 @@ export const view = (
 
 export const init = (
   { shared, nest, subscribe }
-  : InitProps<Model, SharedModel>
-) : InitModel<Model> =>
-  new Model()
+  : InitProps<SharedModel>
+) : InitModel<Model> => ({
+  news: []
+})

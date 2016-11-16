@@ -1,12 +1,16 @@
-import { Cmd, Task } from 'mangojuice';
-import { ViewProps, InitProps, InitModel } from 'mangojuice/types';
-import { Model as SharedModel } from '../Shared';
+// @flow
+import type { ViewProps, InitProps, InitModel } from '../../../mangojuice/types';
+import type { Model as SharedModel } from '../Shared';
+import React from 'react';
+import { Cmd, Task } from '../../../mangojuice';
+import { Routes } from '../routes';
 import * as News from './News';
+import * as User from '../Shared/User';
 import * as Mail from './Mail';
 import * as Letter from './Mail/Letter';
 
 
-export type Model {
+export type Model = {
   mail: Mail.Model,
   news: News.Model,
   notification: string
@@ -58,9 +62,9 @@ export const View = (
 
 export const init = (
   { shared, nest, subscribe }
-  : InitProps<Model, SharedModel>
-) : InitModel<Model> => ({
-  news: nest(Commands.NewsCmd, News.init),
+  : InitProps<SharedModel>
+) : Model => ({
   mail: nest(Commands.MailCmd, Mail.init),
+  news: nest(Commands.NewsCmd, News.init),
   notification: ''
 });

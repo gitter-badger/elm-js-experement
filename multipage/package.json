@@ -1,0 +1,11 @@
+{
+  "name": "multipage",
+  "version": "1.0.0",
+  "description": "The aim of this example to develop interface of the lib to be used to solve some common problems in web development.",
+  "main": "test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

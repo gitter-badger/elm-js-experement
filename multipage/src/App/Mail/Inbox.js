@@ -1,11 +1,14 @@
-import { Cmd, Task } from 'mangojuice';
-import { ViewProps, InitProps, InitModel } from 'mangojuice/types';
-import { Model as SharedModel } from '../../Shared';
+// @flow
+import type { ViewProps, InitProps, InitModel } from '../../../../mangojuice/types';
+import type { Model as SharedModel } from '../../Shared';
+import React from 'react';
+import { Cmd, Task } from '../../../../mangojuice';
+import * as Router from '../../../../mangojuice/Router';
 import { MailRoutes } from '../../routes';
 import * as Letter from './Letter';
 
 
-export type Model {
+export type Model = {
   boxes: Array<any>,
   letters: Array<Letter.Model>
 };
@@ -20,7 +23,7 @@ export const Commands = {
     .success(Commands.BoxesGetSuccess)
     .fail(Commands.BoxesGetFailed)
   ),
-  BoxesGetSuccess: Cmd.update((model: Model, nextBoxes: Array) => ({
+  BoxesGetSuccess: Cmd.update((model: Model, nextBoxes: Array<any>) => ({
     boxes: nextBoxes
   })),
   BoxesGetFailed: Cmd.nope(),
@@ -33,11 +36,11 @@ export const Commands = {
     .success(Commands.LettersGetSuccess)
     .fail(Commands.LettersGetFailed)
   ),
-  LettersGetSuccess: Cmd.update((model: Model, nextLetters: Array) => ({
+  LettersGetSuccess: Cmd.update((model: Model, nextLetters: Array<any>) => ({
     letters: nextLetters.map(l => model.nest(Commands.LetterCmd, Letter.init, l))
   })),
   LettersGetFailed: Cmd.nope(),
-  FilterOutLetter: Cmd.update((model, id) => ({
+  FilterOutLetter: Cmd.update((model: Model, id) => ({
     letters: model.letters.filter(x => x.id !== id)
   })),
   LetterCmd: Cmd.middleware()
@@ -76,14 +79,13 @@ export const View = (
 
     <div>
       <h2>{shared.intl.formatMessage(Messages.letters)}</h2>
-      {model.letters.map(letter => nest(letter, Letter.View))}
+      {model.letters.map(letter => nest(letter, Commands.LetterCmd, Letter.View))}
     </div>
   </div>
 );
 
 export const init = (
-  { shared, nest, subscribe }
-  : InitProps<Model, SharedModel>
+  { shared, subscribe } : InitProps<SharedModel>
 ) : InitModel<Model> => ({
   subs: subscribe(shared.route, Commands.RouterCmd),
   model: {
@@ -102,7 +104,7 @@ export const getBoxesList = () => {
   ]);
 };
 
-export const getMailsList = (boxId) => {
+export const getMailsList = (boxId : number) => {
   return Promise.resolve([
     { title: `${boxId} mail 1`, text: 'Letter 1' },
     { title: `${boxId} mail 2`, text: 'Letter 2' },
