@@ -1,8 +1,8 @@
-import { BaseModel, ViewProps, InitProps } from 'mangojuice';
-import { Model as Shared } from '../../Shared';
+import { ViewProps, InitProps, InitModel } from 'mangojuice/types';
+import { Model as SharedModel } from '../../Shared';
 
 
-export class Model extends BaseModel {
+export type Model {
 };
 
 export const Commands = {
@@ -14,7 +14,7 @@ export const Messages = {
 
 export const view = (
   { model, shared, nest, exec }
-  : ViewProps<Model, Shared>
+  : ViewProps<Model, SharedModel>
 ) => (
   <div>
     {shared.intl.formatMessage(Messages.title)}
@@ -22,7 +22,7 @@ export const view = (
 );
 
 export const init = (
-  { nest, shared }
-  : InitProps<Model, Shared>
-) =>
+  { shared, nest, subscribe }
+  : InitProps<Model, SharedModel>
+) : InitModel<Model> =>
   new Model()

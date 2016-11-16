@@ -1,13 +1,14 @@
-import { Cmd, BaseModel, ViewProps, InitProps } from 'mangojuice';
-import { Model as Shared } from '../../Shared';
+import { Cmd } from 'mangojuice';
+import { ViewProps, InitProps, InitModel } from 'mangojuice/types';
+import { Model as SharedModel } from '../../Shared';
 import { MailRoutes } from '../../routes';
 import * as Inbox from './Inbox';
 import * as Sent from './Sent';
 
 
-export class Model extends BaseModel {
-  inbox: Inbox.Model;
-  sent: Sent.Model;
+export type Model {
+  inbox: Inbox.Model,
+  sent: Sent.Model
 };
 
 export const Commands = {
@@ -22,7 +23,7 @@ export const Messages = {
 
 export const View = (
   { model, shared, nest, exec }
-  : ViewProps<Model, Shared>
+  : ViewProps<Model, SharedModel>
 ) => (
   <div>
     <ul>
@@ -51,9 +52,8 @@ export const View = (
 
 export const init = (
   { nest, shared }
-  : InitProps<Model, Shared>
-) =>
-  new Model({
-    inbox: nest(Commands.InboxCmd, Inbox.init),
-    sent: nest(Commands.SentCmd, Sent.init)
-  });
+  : InitProps<Model, SharedModel>
+) : InitModel<Model> => ({
+  inbox: nest(Commands.InboxCmd, Inbox.init),
+  sent: nest(Commands.SentCmd, Sent.init)
+});

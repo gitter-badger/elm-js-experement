@@ -1,14 +1,15 @@
-import { Cmd, BaseModel, Task, ViewProps, InitProps } from 'mangojuice';
-import { Model as Shared } from '../Shared';
+import { Cmd, Task } from 'mangojuice';
+import { ViewProps, InitProps, InitModel } from 'mangojuice/types';
+import { Model as SharedModel } from '../Shared';
 import * as News from './News';
 import * as Mail from './Mail';
 import * as Letter from './Mail/Letter';
 
 
-export class Model extends BaseModel {
-  mail: Mail.Model;
-  news: News.Model;
-  notification: string;
+export type Model {
+  mail: Mail.Model,
+  news: News.Model,
+  notification: string
 };
 
 export const Commands = {
@@ -38,7 +39,7 @@ export const Messages = {
 
 export const View = (
   { model, shared, nest, exec }
-  : ViewProps<Model, Shared>
+  : ViewProps<Model, SharedModel>
 ) => (
   <div>
     {!!model.notification && (
@@ -56,11 +57,10 @@ export const View = (
 );
 
 export const init = (
-  { nest, shared }
-  : InitProps<Model, Shared>
-) =>
-  new Model({
-    news: nest(Commands.NewsCmd, News.init),
-    mail: nest(Commands.MailCmd, Mail.init),
-    notification: ''
-  })
+  { shared, nest, subscribe }
+  : InitProps<Model, SharedModel>
+) : InitModel<Model> => ({
+  news: nest(Commands.NewsCmd, News.init),
+  mail: nest(Commands.MailCmd, Mail.init),
+  notification: ''
+});

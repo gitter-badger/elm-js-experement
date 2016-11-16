@@ -1,11 +1,13 @@
-import { Cmd, BaseModel, Task, ViewProps, InitProps } from 'mangojuice';
+import { Cmd, Task } from 'mangojuice';
+import { ViewProps, InitProps, InitModel } from 'mangojuice/types';
+import { Model as SharedModel } from '../../Shared';
 import { MailRoutes } from '../../routes';
 import * as Letter from './Letter';
 
 
-export class Model extends BaseModel {
-  boxes: Array<any>;
-  letters: Array<Letter.Model>;
+export type Model {
+  boxes: Array<any>,
+  letters: Array<Letter.Model>
 };
 
 export const Commands = {
@@ -43,12 +45,10 @@ export const Commands = {
       Commands.FilterOutLetter.with(letter.id),
       letterCmd
     ]),
-  RouterCmd: Cmd.middleware()
-    .anyCommand((model, route, routeCmd) => [
-      route.firstTime(MailRoutes.Inbox) && Commands.UpdateBoxesList,
-      route.changed(MailRoutes.Inbox) && Commands.GetBoxLetters,
-      routeCmd
-    ])
+  RouterCmd: Cmd.subscription((model : Model, route : Router.Model) => [
+    route.firstTime(MailRoutes.Inbox) && Commands.UpdateBoxesList,
+    route.changed(MailRoutes.Inbox) && Commands.GetBoxLetters,
+  ])
 };
 
 export const Messages = {
@@ -58,7 +58,7 @@ export const Messages = {
 
 export const View = (
   { model, shared, nest, exec }
-  : ViewProps<Model, Shared>
+  : ViewProps<Model, SharedModel>
 ) => (
   <div>
     <div>
@@ -82,14 +82,14 @@ export const View = (
 );
 
 export const init = (
-  { nest, shared, subscribe }
-  : InitProps<Model, Shared>
-) => ({
-  model: new Model({
+  { shared, nest, subscribe }
+  : InitProps<Model, SharedModel>
+) : InitModel<Model> => ({
+  subs: subscribe(shared.route, Commands.RouterCmd),
+  model: {
     boxes: [],
     letters: []
-  }),
-  subs: subscribe(shared.route, Commands.RouterCmd)
+  }
 })
 
 

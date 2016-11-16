@@ -1,10 +1,11 @@
-import { Cmd, BaseModel, ViewProps, InitProps } from 'mangojuice';
-import { Model as Shared } from '../../Shared';
+import { Cmd } from 'mangojuice';
+import { ViewProps, InitProps, InitModel } from 'mangojuice/types';
+import { Model as SharedModel } from '../../Shared';
 
 
-export class Model extends BaseModel {
-  title: string;
-  text: string;
+export type Model {
+  title: string,
+  text: string
 };
 
 export const Commands = {
@@ -16,8 +17,8 @@ export const Messages = {
 }
 
 export const View = (
-  { model, shared, exec }
-  : ViewProps<Model, Shared>
+  { model, shared, nest, exec }
+  : ViewProps<Model, SharedModel>
 ) => (
   <div>
     <h3>{model.title}</h3>
@@ -33,10 +34,10 @@ export const View = (
 );
 
 export const init = (
-  { nest, shared } : InitProps<Model, Shared>,
+  { shared, nest, subscribe }
+  : InitProps<Model, SharedModel>,
   letter: Object
-) =>
-  new Model({
-    title: letter.title,
-    text: letter.text
-  });
+) : InitModel<Model> => ({
+  title: letter.title,
+  text: letter.text
+});

@@ -1,10 +1,11 @@
-import { Cmd, BaseModel } from 'mangojuice';
+import { Cmd } from 'mangojuice';
+import { InitProps, InitModel } from 'mangojuice/types';
 
 
-export class Model extends BaseModel {
-  authorized: Boolean;
-  name: String;
-}
+export type Model {
+  authorized: Boolean,
+  name: String
+};
 
 export const Commands = {
   Login: Cmd.update((model : Model) => {
@@ -15,13 +16,13 @@ export const Commands = {
   })
 };
 
-export const init = () : Model => {
-  if (!Model.instance) {
-    Model.instance = new Model({
-      authorized: false,
-      name: ''
-    });
-    Cmd.bindModel(Commands, Model.instance);
+export const init = (
+  { nest }
+  : InitProps<Model>
+) : InitModel<Model> => ({
+  bindCommands: Commands,
+  model: {
+    authorized: false,
+    name: ''
   }
-  return Model.instance;
-}
+});
