@@ -1,10 +1,10 @@
 // @flow
-import type { InitSharedProps, InitModel } from '../../../mangojuice/types';
-import { Cmd } from '../../../mangojuice';
-import * as Router from '../../../mangojuice/Router';
-import * as Intl from '../../../mangojuice/Intl';
+import type { InitSharedProps, InitModel } from 'mangojuice/types';
+import { Cmd } from 'mangojuice';
+import * as Router from 'mangojuice/Router';
+import * as Intl from 'mangojuice/Intl';
 import * as User from './User';
-import { Routes } from '../routes';
+import { Routes } from 'src/routes';
 
 
 export type Model = {

@@ -1,6 +1,6 @@
 // @flow
-import type { InitSharedProps, InitModel } from '../../../mangojuice/types';
-import { Cmd } from '../../../mangojuice';
+import type { InitSharedProps, InitModel } from 'mangojuice/types';
+import { Cmd } from 'mangojuice';
 
 
 export type Model = {

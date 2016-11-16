@@ -1,9 +1,9 @@
 // @flow
-import type { ViewProps, InitProps, InitModel } from '../../../../mangojuice/types';
-import type { Model as SharedModel } from '../../Shared';
+import type { ViewProps, InitProps, InitModel } from 'mangojuice/types';
+import type { Model as SharedModel } from 'src/Shared';
 import React from 'react';
-import { Cmd } from '../../../../mangojuice';
-import { MailRoutes } from '../../routes';
+import { Cmd } from 'mangojuice';
+import { MailRoutes } from 'src/routes';
 import * as Inbox from './Inbox';
 import * as Sent from './Sent';
 

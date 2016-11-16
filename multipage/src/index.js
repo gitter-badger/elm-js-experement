@@ -1,5 +1,5 @@
 // @flow
-import { Process } from '../../mangojuice';
+import { Process } from 'mangojuice';
 import * as App from './App';
 import * as Shared from './Shared';
 

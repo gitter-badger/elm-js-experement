@@ -1,11 +1,11 @@
 // @flow
-import type { ViewProps, InitProps, InitModel } from '../../../mangojuice/types';
-import type { Model as SharedModel } from '../Shared';
+import type { ViewProps, InitProps, InitModel } from 'mangojuice/types';
+import type { Model as SharedModel } from 'src/Shared';
 import React from 'react';
-import { Cmd, Task } from '../../../mangojuice';
-import { Routes } from '../routes';
+import { Cmd, Task } from 'mangojuice';
+import { Routes } from 'src/routes';
+import * as User from 'src/Shared/User';
 import * as News from './News';
-import * as User from '../Shared/User';
 import * as Mail from './Mail';
 import * as Letter from './Mail/Letter';
 

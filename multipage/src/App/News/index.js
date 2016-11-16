@@ -1,6 +1,6 @@
 // @flow
-import type { ViewProps, InitProps, InitModel } from '../../../../mangojuice/types';
-import type { Model as SharedModel } from '../../Shared';
+import type { ViewProps, InitProps, InitModel } from 'mangojuice/types';
+import type { Model as SharedModel } from 'src/Shared';
 import React from 'react';
 
 
