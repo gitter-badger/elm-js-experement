@@ -1,6 +1,10 @@
 export class Cmd {
   static middleware() {
-
+    return {
+      on: () => {
+        return Cmd.middleware();
+      }
+    }
   }
 
   static subscription() {
@@ -16,7 +20,7 @@ export class Cmd {
   }
 
   static batch() {
-    
+
   }
 
   static nope() {

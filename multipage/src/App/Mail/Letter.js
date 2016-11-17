@@ -11,7 +11,7 @@ export type Model = {
 };
 
 export const Commands = {
-  Delete: Cmd.none()
+  Delete: Cmd.nope()
 };
 
 export const Messages = {

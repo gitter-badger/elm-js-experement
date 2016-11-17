@@ -12,7 +12,7 @@ export type Model = {
 };
 
 export const Commands = {
-  InitSentLetters: Cmd.none(),
+  InitSentLetters: Cmd.nope(),
   RouterCmd: Cmd.subscription((model : Model, route : Router.Model) => [
     route.firstTime(MailRoutes.Sent) && Commands.InitSentLetters
   ])

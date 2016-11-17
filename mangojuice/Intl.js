@@ -20,7 +20,7 @@ export const Commands = {
     locale: nextLocale
   })),
   LoadMessages: Cmd.update(({ model } : CmdProps<Model>) => {
-    messages: model.languages[model.locale].translations,
+    messages: model.languages[model.locale].translations
   })
 };
 
