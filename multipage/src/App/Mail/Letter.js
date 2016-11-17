@@ -37,8 +37,7 @@ export const View = (
 
 export const init = (
   { shared, nest, subscribe } : InitProps<SharedModel>,
-  letter: Object
+  letter: Model
 ) : InitModel<Model> => ({
-  title: letter.title,
-  text: letter.text
+  ...letter
 });

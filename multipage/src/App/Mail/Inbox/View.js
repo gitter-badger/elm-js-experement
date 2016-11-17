@@ -31,7 +31,9 @@ export const View = (
 
     <div>
       <h2>{shared.intl.formatMessage(Messages.letters)}</h2>
-      {model.letters.map(letter => nest(letter, LetterMiddleware, LetterView))}
+      {model.letters.map(letter =>
+        nest(letter, LetterMiddleware, LetterView)
+      )}
     </div>
   </div>
 );

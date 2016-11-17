@@ -1,4 +1,16 @@
 // @flow
+/**
+ * Tasks file is the place for all server side interactions and some
+ * other asynchronous actions, like debouncing. You should place here
+ * everything related with data parsing and checking, HTTP requests etc.
+ *
+ * Do not worry about exceptions in the task. Each task will be executed
+ * in scope of some success and fail commands. So, if the task finished
+ * successfully and return some object – success task will be executed.
+ * Otherwise – fail task with exception object passed into it.
+ *
+ * The task is just a generator function. It is executed using redux-saga.
+ */
 import type { CmdProps } from 'mangojuice/types';
 import type { Model as SharedModel } from 'src/Shared';
 import type { Model } from './Model';
@@ -30,7 +42,7 @@ export const _getBoxesList = () => {
   ]);
 };
 
-export const _getMailsList = (boxId : number) => {
+export const _getMailsList = (boxId : string) => {
   return Promise.resolve([
     { title: `${boxId} mail 1`, text: 'Letter 1' },
     { title: `${boxId} mail 2`, text: 'Letter 2' },

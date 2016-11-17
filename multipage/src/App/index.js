@@ -21,7 +21,7 @@ export const Commands = {
     Commands.SetNotificationMsg.with(message),
     Commands.DelayHideNotification
   ]),
-  DelayHideNotification: Cmd.execLatest((model : Model) =>
+  DelayHideNotification: Cmd.execLatest(() =>
     new Task(function* () { yield Task.delay(5000) })
     .success(Commands.SetNotificationMsg.with(''))
     .fail(Cmd.nope())
