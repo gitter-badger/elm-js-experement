@@ -4,7 +4,8 @@ import { Cmd } from 'mangojuice';
 import * as Router from 'mangojuice/Router';
 import * as Intl from 'mangojuice/Intl';
 import * as User from './User';
-import { Routes } from 'src/routes';
+import routes from 'src/routes';
+import languages from 'src/languages';
 
 
 export type Model = {
@@ -23,7 +24,7 @@ export const init = (
   { nest }
   : InitSharedProps
 ) : InitModel<Model> => ({
-  route: nest(Commands.RotuerCmd, Router.init, Routes),
-  intl: nest(Commands.IntlCmd, Intl.init),
+  route: nest(Commands.RotuerCmd, Router.init, routes),
+  intl: nest(Commands.IntlCmd, Intl.init, languages),
   user: nest(Commands.UserCmd, User.init)
 });

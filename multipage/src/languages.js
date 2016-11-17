@@ -2,10 +2,10 @@ export default {
   en: {
     default: true,
     name: 'English',
-    translations: './translations/en.js'
+    translations: require('./translations/en')
   },
   ru: {
     name: 'Русский',
-    translations: './translations/ru.js'
+    translations: require('./translations/ru')
   }
 };

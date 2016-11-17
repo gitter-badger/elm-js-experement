@@ -1,12 +1,14 @@
-import { Router } from 'mangojuice';
+import { route } from 'mangojuice/Router';
 
 
 export const MailRoutes = {
-  Inbox: Router.route('/inbox(/:box)'),
-  Sent: Router.route('/sent')
+  Inbox: route('/inbox(/:box)'),
+  Sent: route('/sent')
 };
 
 export const Routes = {
-  News: Router.route('/news', { default: true }),
-  Mail: Router.route('/mail', MailRoutes)
+  News: route('/news', { default: true }),
+  Mail: route('/mail', MailRoutes)
 };
+
+export default Routes;

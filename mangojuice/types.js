@@ -5,7 +5,7 @@ export type InitSharedProps = {
 };
 
 export type InitModel<T> = {
-  cmd? : any,
+  command? : any,
   model : T,
   subs? : Array<any>,
   bindCommands? : any
@@ -22,4 +22,8 @@ export type ViewProps<T, G> = {
   shared : G,
   nest : <H>(a : H, b : any, c : (props : ViewProps<H, G>) => any) => any,
   exec : Function
+};
+
+export type CmdProps<T, G> = {
+
 };
