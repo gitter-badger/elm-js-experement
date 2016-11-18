@@ -17,16 +17,24 @@ export const init = (
   routes
 ) : InitModel<Model> => ({
   bindCommands: Commands,
-  model: createModel(routes)
+  model: createModel(routes),
+  port: createHistoryHandler(routes)
 });
 
 export const route = (pattern, opts) => {
   return Cmd.nope();
 };
 
+
 const createModel = (routes) => {
   return {
     firstTime() { return true; },
     changed() { return true; }
+  };
+};
+
+const createHistoryHandler = (routes) => {
+  return ({ model, exec }) => {
+    // You can execute any command here
   };
 };

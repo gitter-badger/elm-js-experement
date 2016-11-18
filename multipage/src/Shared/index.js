@@ -24,7 +24,10 @@ export const init = (
   { nest }
   : InitSharedProps
 ) : InitModel<Model> => ({
-  route: nest(Commands.RotuerCmd, Router.init, routes),
-  intl: nest(Commands.IntlCmd, Intl.init, languages),
-  user: nest(Commands.UserCmd, User.init)
+  bindCommands: Commands,
+  model: {
+    route: nest(Commands.RotuerCmd, Router.init, routes),
+    intl: nest(Commands.IntlCmd, Intl.init, languages),
+    user: nest(Commands.UserCmd, User.init)
+  }
 });

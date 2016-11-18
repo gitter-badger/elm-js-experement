@@ -35,7 +35,7 @@ export const init = (props, languages) : InitModel<Model> => ({
 const createModel = (languages) : Model => ({
   languages,
   messages: {},
-  locale: Object.keys(languages).find(x => languages[k].default),
+  locale: Object.keys(languages).find(k => languages[k].default),
   formatMessage(id: string, ...args: Array<any>) : string {
     return this.messages[id] || id;
   }

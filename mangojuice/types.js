@@ -8,7 +8,8 @@ export type InitModel<T> = {
   command? : any,
   model : T,
   subs? : Array<any>,
-  bindCommands? : any
+  bindCommands? : any,
+  port : Function
 } | T;
 
 export type InitProps<S> = {
