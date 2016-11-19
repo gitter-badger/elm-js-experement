@@ -21,7 +21,7 @@ export const View = (
       <ul>
         {model.boxes.map(box => (
           <li>
-            <a onClick={exec(MailRoutes.Inbox.with({ box: box.id }))}>
+            <a onClick={exec(MailRoutes.Inbox.bindArgs({ box: box.id }))}>
               {box.title}
             </a>
           </li>

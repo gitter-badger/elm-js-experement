@@ -31,7 +31,7 @@ export const View = (
     <ul>
       <li>
         <a
-          onClick={exec(MailRoutes.Inbox.with({ box: 0 }))}
+          onClick={exec(MailRoutes.Inbox.bindArgs({ box: 0 }))}
           active={shared.route.is(MailRoutes.Inbox)}
         >
           {shared.intl.formatMessage(Messages.inbox)}

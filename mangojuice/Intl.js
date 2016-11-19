@@ -11,7 +11,7 @@ export type Model = {
 };
 
 
-export const Commands = {
+export const Commands = Cmd.debug({
   ChangeLocale: Cmd.batch((props, nextLocale : string) => [
     Commands.SetNewLocale.with(nextLocale),
     Commands.LoadMessages
@@ -19,10 +19,10 @@ export const Commands = {
   SetNewLocale: Cmd.update((props, nextLocale : string) => ({
     locale: nextLocale
   })),
-  LoadMessages: Cmd.update(({ model } : CmdProps<Model>) => {
+  LoadMessages: Cmd.update(({ model } : CmdProps<Model>) => ({
     messages: model.languages[model.locale].translations
-  })
-};
+  }))
+});
 
 
 export const init = (props, languages) : InitModel<Model> => ({

@@ -5,7 +5,8 @@ import { Cmd } from './index';
 
 export type Model = {
   firstTime: Function,
-  changed: Function
+  changed: Function,
+  switch: Function
 };
 
 export const Commands = {
@@ -29,7 +30,10 @@ export const route = (pattern, opts) => {
 const createModel = (routes) => {
   return {
     firstTime() { return true; },
-    changed() { return true; }
+    changed() { return true; },
+    when() {
+      return { is: (route, fn) => { return  } }
+    }
   };
 };
 

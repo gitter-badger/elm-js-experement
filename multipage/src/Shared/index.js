@@ -14,11 +14,13 @@ export type Model = {
   user: User.Model
 };
 
-export const Commands = {
-  IntlCmd: Cmd.middleware(),
+export const Commands = Cmd.debug({
+  IntlCmd: Cmd.middleware((propc, mod, cmd) => {
+    return [cmd];
+  }),
   UserCmd: Cmd.middleware(),
   RotuerCmd: Cmd.middleware()
-};
+});
 
 export const init = (
   { nest }
