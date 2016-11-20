@@ -32,7 +32,7 @@ export const View = (
       <li>
         <a
           onClick={exec(MailRoutes.Inbox.bindArgs({ box: 0 }))}
-          active={shared.route.is(MailRoutes.Inbox)}
+          className={shared.route.is(MailRoutes.Inbox)}
         >
           {shared.intl.formatMessage(Messages.inbox)}
         </a>
@@ -40,15 +40,14 @@ export const View = (
       <li>
         <a
           onClick={exec(MailRoutes.Sent)}
-          active={shared.route.is(MailRoutes.Sent)}
+          className={shared.route.is(MailRoutes.Sent)}
         >
           {shared.intl.formatMessage(Messages.sent)}
         </a>
       </li>
     </ul>
-    {shared.route.when()
-      .is(MailRoutes.Inbox, () => nest(model.inbox, Commands.InboxCmd, Inbox.View))
-      .is(MailRoutes.Sent, () => nest(model.sent, Commands.SentCmd, Sent.View))}
+    {shared.route.when(MailRoutes.Inbox, () => nest(model.inbox, Commands.InboxCmd, Inbox.View))}
+    {shared.route.when(MailRoutes.Sent, () => nest(model.sent, Commands.SentCmd, Sent.View))}
   </div>
 );
 

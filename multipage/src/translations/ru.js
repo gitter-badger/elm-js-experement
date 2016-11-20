@@ -5,5 +5,6 @@ export default {
   'MAIL.INBOX.BOXES_TITLE': 'Ящики',
   'MAIL.INBOX.LETTERS_TITLE': 'Письма',
   'MAIL.LETTER.DELETE': 'Удалить',
-  'MAIL.SENT.FOR': 'Для %s'
+  'MAIL.SENT.FOR': 'Для %s',
+  'NEWS.TITLE': 'Новости'
 };

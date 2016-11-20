@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { EventEmitter } from 'events';
 import * as Cmd from './Cmd';
 import { nextId } from './utils';
 
@@ -16,7 +17,10 @@ const runInit = (initFn, shared) => {
   });
 
   const initRunner = (prevLeaf, middleware, subInit, ...args) => {
-    const nextLeaf = { shared, middleware, prevLeaf, children: {} };
+    const nextLeaf = Object.assign(
+      new EventEmitter(),
+      { shared, middleware, prevLeaf, children: {} }
+    );
     const nest = initRunner.bind(null, nextLeaf);
     const res = subInit({ nest, shared, subscribe }, ...args);
     const data = res.model ? res : { model: res };
@@ -25,21 +29,60 @@ const runInit = (initFn, shared) => {
       enumerable: false,
       configurable: false
     });
-
     nextLeaf.data = data;
     nextLeaf.nest = nest;
+    nextLeaf.on('shortUpdate', () => nextLeaf.emit('fullUpdate'));
+    nextLeaf.on('fullUpdate', () => prevLeaf.emit('fullUpdate'));
     prevLeaf.children[data.model._id] = nextLeaf;
     return data.model;
   };
 
-  const rootNode = { children: {} };
+  const rootNode = { children: {}, emit: () => {} };
   const model = initRunner(rootNode, logger, initFn);
   return { model, meta: rootNode.children[model._id] };
 };
 
 
-const execView = (app, view, mount) => {
+const execView = (meta, sharedMeta, View, chain = []) => {
+  const nextChain = chain.concat(meta);
 
+  const nest = (model, mid, subView) => {
+    const subMeta = meta.children[model._id];
+    return execView(subMeta, sharedMeta, subView, nextChain);
+  }
+
+  const exec = (cmd) => (...args) => (
+    execChain(nextChain, { meta, cmd })
+  );
+
+  class ViewComponent extends React.Component {
+    componentWillMount() {
+      this.forceUpdate = this.forceUpdate.bind(this);
+      meta.on('shortUpdate', this.forceUpdate);
+      sharedMeta.on('fullUpdate', this.forceUpdate);
+    }
+
+    componentWillUnmount() {
+      meta.removeListener('shortUpdate', this.forceUpdate);
+      sharedMeta.removeListener('fullUpdate', this.forceUpdate);
+    }
+
+    shuoldComponentUpdate() {
+      return false;
+    }
+
+    render() {
+      return (
+        <View
+          model={meta.data.model}
+          shared={meta.shared}
+          nest={nest}
+          exec={exec}
+        />
+      );
+    }
+  }
+  return <ViewComponent />
 };
 
 
@@ -96,6 +139,9 @@ const execChain = (chain, elem) => {
     if (elem.cmd instanceof Cmd.BatchCmd) {
       execCmds.push(...res.map(x => ({ ...elem, cmd: x })));
     }
+    if (elem.cmd instanceof Cmd.UpdateCmd) {
+      elem.meta.emit('shortUpdate');
+    }
   }
 
   execCmds.forEach(x => execChain(chain, x));
@@ -135,5 +181,5 @@ export const start = ({
   const app = runInit(appInit, shared.model);
   execMeta(shared.meta);
   execMeta(app.meta);
-  execView(app, view, mount);
+  ReactDOM.render(execView(app.meta, shared.meta, view), mount);
 }

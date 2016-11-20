@@ -31,9 +31,8 @@ const createModel = (routes) => {
   return {
     firstTime() { return true; },
     changed() { return true; },
-    when() {
-      return { is: (route, fn) => { return  } }
-    }
+    is() { return true; },
+    when(route, fn) { return fn() }
   };
 };
 

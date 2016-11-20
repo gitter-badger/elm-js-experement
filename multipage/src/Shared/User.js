@@ -8,14 +8,14 @@ export type Model = {
   name: string
 };
 
-export const Commands = {
-  Login: Cmd.update((model : Model) => {
-    update: { authorized: true }
-  }),
-  Logout: Cmd.update((model : Model) => {
-    update: { authorized: false }
-  })
-};
+export const Commands = Cmd.debug({
+  Login: Cmd.update((model : Model) => ({
+    authorized: true, name: 'Test User'
+  })),
+  Logout: Cmd.update((model : Model) => ({
+    authorized: false,  name: ''
+  }))
+});
 
 export const init = (
   { nest }

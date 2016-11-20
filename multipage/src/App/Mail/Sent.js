@@ -27,7 +27,7 @@ export const View = (
   : ViewProps<Model, SharedModel>
 ) => (
   <div>
-    <h2>{shared.intl.formatMessage(Messages.for, model.user.name)}</h2>
+    <h2>{shared.intl.formatMessage(Messages.for, shared.user.name)}</h2>
     {model.letters.map(letter => (
       <p>{letter.title}</p>
     ))}

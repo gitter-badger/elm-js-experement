@@ -16,7 +16,7 @@ export type Model = {
   notification: string
 };
 
-export const Commands = {
+export const Commands = Cmd.debug({
   ShowNotification: Cmd.batch((model : Model, message : String) => [
     Commands.SetNotificationMsg.with(message),
     Commands.DelayHideNotification
@@ -35,7 +35,7 @@ export const Commands = {
       Commands.ShowNotification.with('Letter removed succeessfully!'),
       letterCmd
     ])
-};
+});
 
 export const Messages = {
   title: 'APP.TITLE'
@@ -50,13 +50,12 @@ export const View = (
       <div>{model.notification}</div>
     )}
     <h1>{shared.intl.formatMessage(Messages.title)}</h1>
-    <div>{shared.user.authorized
+    <div>{!shared.user.authorized
       ? <button onClick={exec(User.Commands.Login)}>Log in</button>
       : <button onClick={exec(User.Commands.Logout)}>Log out</button>}
     </div>
-    {shared.route.when()
-      .is(Routes.Mail, () => nest(model.mail, Commands.MailCmd, Mail.View))
-      .is(Routes.News, () => nest(model.news, Commands.NewsCmd, News.View))}
+    {shared.route.when(Routes.Mail, () => nest(model.mail, Commands.MailCmd, Mail.View))}
+    {shared.route.when(Routes.News, () => nest(model.news, Commands.NewsCmd, News.View))}
   </div>
 );
 

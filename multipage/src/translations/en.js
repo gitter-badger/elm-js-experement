@@ -5,5 +5,6 @@ export default {
   'MAIL.INBOX.BOXES_TITLE': 'Boxes',
   'MAIL.INBOX.LETTERS_TITLE': 'Letters',
   'MAIL.LETTER.DELETE': 'Delete',
-  'MAIL.SENT.FOR': 'For %s'
+  'MAIL.SENT.FOR': 'For %s',
+  'NEWS.TITLE': 'News'
 };

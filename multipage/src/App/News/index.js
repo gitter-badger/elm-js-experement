@@ -19,9 +19,9 @@ export const View = (
   { model, shared, nest, exec }
   : ViewProps<Model, SharedModel>
 ) => (
-  <div>
+  <h1>
     {shared.intl.formatMessage(Messages.title)}
-  </div>
+  </h1>
 );
 
 export const init = (

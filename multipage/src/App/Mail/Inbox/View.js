@@ -1,6 +1,7 @@
 // @flow
 import type { ViewProps } from 'mangojuice/types';
 import type { Model as SharedModel } from 'src/Shared';
+import React from 'react';
 import { LetterMiddleware } from './Commands';
 import { View as LetterView } from '../Letter';
 import { MailRoutes } from 'src/routes';
