@@ -15,9 +15,7 @@ export type Model = {
 };
 
 export const Commands = Cmd.debug({
-  IntlCmd: Cmd.middleware((propc, mod, cmd) => {
-    return [cmd];
-  }),
+  IntlCmd: Cmd.middleware(),
   UserCmd: Cmd.middleware(),
   RotuerCmd: Cmd.middleware()
 });

@@ -1,7 +1,7 @@
 import { nextId } from './utils';
 
 
-class Cmd {
+export class Cmd {
   constructor(model, commandFn, args, id) {
     this._id = id || nextId();
     this._model = model;
@@ -42,7 +42,7 @@ class Cmd {
   }
 }
 
-class MiddlewareCmd extends Cmd {
+export class MiddlewareCmd extends Cmd {
   constructor(defaultFn) {
     super();
     this._cmdMap = {};
@@ -66,9 +66,43 @@ class MiddlewareCmd extends Cmd {
   };
 };
 
+export class BatchCmd extends Cmd {
+  constructor(genFn) {
+    super();
+    this._genFn = genFn;
+    this._commandFn = this.executor;
+  }
+
+  executor = (props, ...args) => {
+    return this._genFn(props, ...args);
+  };
+};
+
+export class UpdateCmd extends Cmd {
+  constructor(updateFn) {
+    super();
+    this._updateFn = updateFn;
+    this._commandFn = this.executor;
+  }
+
+  executor = (props, ...args) => {
+    const newFields = this._updateFn(props, ...args);
+    Object.assign(props.model, newFields);
+    return newFields;
+  };
+};
+
 
 export const middleware = (defaultFn) => {
   return new MiddlewareCmd(defaultFn);
+};
+
+export const batch = (commandsFn) => {
+  return new BatchCmd(commandsFn);
+};
+
+export const update = (updaterFn) => {
+  return new UpdateCmd(updaterFn);
 };
 
 export const subscription = (defaultFn) => {
@@ -76,18 +110,6 @@ export const subscription = (defaultFn) => {
 };
 
 export const  execLatest = () => {
-  return {};
-};
-
-export const update = (updaterFn) => {
-  return new Cmd(null, (props, ...args) => {
-    const newFields = updaterFn(props, ...args);
-    Object.assign(props.model, newFields);
-    return props.model;
-  });
-};
-
-export const batch = () => {
   return {};
 };
 
