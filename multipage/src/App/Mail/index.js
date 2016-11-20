@@ -13,10 +13,10 @@ export type Model = {
   sent: Sent.Model
 };
 
-export const Commands = {
+export const Commands = Cmd.debug({
   InboxCmd: Cmd.middleware(),
   SentCmd: Cmd.middleware()
-};
+});
 
 export const Messages = {
   inbox: 'MAIL.INBOX_TITLE',

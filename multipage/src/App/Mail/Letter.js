@@ -10,9 +10,9 @@ export type Model = {
   text: string
 };
 
-export const Commands = {
+export const Commands = Cmd.debug({
   Delete: Cmd.nope()
-};
+});
 
 export const Messages = {
   delete: 'MAIL.LETTER.DELETE'

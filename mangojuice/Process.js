@@ -31,8 +31,8 @@ const runInit = (initFn, shared) => {
     });
     nextLeaf.data = data;
     nextLeaf.nest = nest;
-    nextLeaf.on('shortUpdate', () => nextLeaf.emit('fullUpdate'));
-    nextLeaf.on('fullUpdate', () => prevLeaf.emit('fullUpdate'));
+    nextLeaf.on('shortUpdate', (id) => nextLeaf.emit('fullUpdate', id));
+    nextLeaf.on('fullUpdate', (id) => prevLeaf.emit('fullUpdate', id));
     prevLeaf.children[data.model._id] = nextLeaf;
     return data.model;
   };
@@ -51,20 +51,27 @@ const execView = (meta, sharedMeta, View, chain = []) => {
     return execView(subMeta, sharedMeta, subView, nextChain);
   }
 
-  const exec = (cmd) => (...args) => (
-    execChain(nextChain, { meta, cmd })
-  );
+  const exec = (cmd) => (...args) => {
+    if (cmd.bindExec) {
+      cmd.bindExec(cmd, ...args);
+    } else {
+      execChain(nextChain, { meta, cmd, args });
+    }
+  };
 
   class ViewComponent extends React.Component {
+    updateView = () => {
+      this.forceUpdate();
+    };
+
     componentWillMount() {
-      this.forceUpdate = this.forceUpdate.bind(this);
-      meta.on('shortUpdate', this.forceUpdate);
-      sharedMeta.on('fullUpdate', this.forceUpdate);
+      meta.on('shortUpdate', this.updateView);
+      sharedMeta.on('fullUpdate', this.updateView);
     }
 
     componentWillUnmount() {
-      meta.removeListener('shortUpdate', this.forceUpdate);
-      sharedMeta.removeListener('fullUpdate', this.forceUpdate);
+      meta.removeListener('shortUpdate', this.updateView);
+      sharedMeta.removeListener('fullUpdate', this.updateView);
     }
 
     shuoldComponentUpdate() {
@@ -140,7 +147,7 @@ const execChain = (chain, elem) => {
       execCmds.push(...res.map(x => ({ ...elem, cmd: x })));
     }
     if (elem.cmd instanceof Cmd.UpdateCmd) {
-      elem.meta.emit('shortUpdate');
+      elem.meta.emit('shortUpdate', elem.meta.data.model._id);
     }
   }
 
@@ -148,18 +155,24 @@ const execChain = (chain, elem) => {
 };
 
 
-const execMeta = (meta, chain = []) => {
+const execMeta = (meta, shared, chain = []) => {
   const nextChain = chain.concat(meta);
+  const exec = (cmd, ...args) => {
+    if (cmd.bindExec && cmd.bindExec !== exec) {
+      cmd.bindExec(cmd, ...args)
+    } else {
+      execChain(nextChain, { meta, cmd, args });
+    }
+  };
 
   if (meta.data.bindCommands) {
     const commands = meta.data.bindCommands;
     Object.keys(commands).forEach(k => {
-      commands[k].model = meta.data.model;
+      commands[k].bindExec = exec;
     });
   }
 
   if (meta.data && (meta.data.command || meta.data.port)) {
-    const exec = (cmd) => execChain(nextChain, { meta, cmd });
     const shared = meta.shared;
     const model = meta.data.model;
 
@@ -167,8 +180,16 @@ const execMeta = (meta, chain = []) => {
     meta.data.port && meta.data.port({ exec, model, shared });
   }
 
+  if (meta.data.subs) {
+    const subs = Array.isArray(meta.data.subs) ? meta.data.subs : [meta.data.subs];
+    subs.forEach(sub => {
+      exec(sub.cmd);
+      shared.on('fullUpdate', id => id === sub.model._id && exec(sub.cmd));
+    });
+  }
+
   Object.keys(meta.children)
-    .forEach((k) => execMeta(meta.children[k], nextChain));
+    .forEach((k) => execMeta(meta.children[k], shared, nextChain));
 };
 
 
@@ -180,6 +201,6 @@ export const start = ({
   const shared = runInit(sharedInit);
   const app = runInit(appInit, shared.model);
   execMeta(shared.meta);
-  execMeta(app.meta);
+  execMeta(app.meta, shared.meta);
   ReactDOM.render(execView(app.meta, shared.meta, view), mount);
 }

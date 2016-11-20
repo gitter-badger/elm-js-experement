@@ -77,10 +77,9 @@ export const LetterMiddleware = Cmd.middleware()
 
 
 // Handle route changes and generate appropreate commands
-export const RouterSubscription = Cmd.subscription((
-  { shared }: CmdProps<Model, SharedModel>,
-  route: RouterModel
-) => [
-  shared.route.firstTime(MailRoutes.Inbox) && RetreiveBoxes,
-  shared.route.changed(MailRoutes.Inbox) && RetreiveBoxLetters,
-]);
+export const RouterSubscription = Cmd.subscription(
+  ({ shared }) => [
+    shared.route.firstTime(MailRoutes.Inbox) && RetreiveBoxes,
+    shared.route.changed(MailRoutes.Inbox) && RetreiveBoxLetters,
+  ]
+);

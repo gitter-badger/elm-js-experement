@@ -11,12 +11,13 @@ export type Model = {
   letters: Array<any>
 };
 
-export const Commands = {
+export const Commands = Cmd.debug({
   InitSentLetters: Cmd.nope(),
-  RouterCmd: Cmd.subscription((model : Model, route : Router.Model) => [
-    route.firstTime(MailRoutes.Sent) && Commands.InitSentLetters
+  UserCmd: Cmd.nope(),
+  RouterCmd: Cmd.subscription(({ shared }) => [
+    shared.route.firstTime(MailRoutes.Sent) && Commands.InitSentLetters
   ])
-};
+});
 
 export const Messages = {
   for: 'MAIL.SENT.FOR'
@@ -38,7 +39,10 @@ export const init = (
   { shared, nest, subscribe }
   : InitProps<SharedModel>
 ) : InitModel<Model> => ({
-  subs: subscribe(shared.route, Commands.RouterCmd),
+  subs: [
+    subscribe(shared.route, Commands.RouterCmd),
+    subscribe(shared.user, Commands.UserCmd)
+  ],
   model: {
     letters: []
   }

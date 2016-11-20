@@ -13,14 +13,6 @@ export class Cmd {
     return this._id;
   }
 
-  set model(val) {
-    this._model = val;
-  }
-
-  bindModel(model) {
-    return this.clone(model);
-  }
-
   bindArgs(...args) {
     return this.clone(null, null, args);
   }
@@ -35,10 +27,10 @@ export class Cmd {
   }
 
   exec(model, shared, nest, ...args) {
-    return this._commandFn && this._commandFn({
-      model: this._model || model,
-      shared, nest
-    }, ...(this._args || args));
+    if (this._commandFn) {
+      const exactArgs = [].concat(this._args || [], args || []);
+      return this._commandFn({ model, shared, nest }, ...exactArgs);
+    }
   }
 }
 
@@ -105,12 +97,12 @@ export const update = (updaterFn) => {
   return new UpdateCmd(updaterFn);
 };
 
-export const subscription = (defaultFn) => {
-  return middleware(defaultFn);
+export const subscription = (commandsFn) => {
+  return batch(commandsFn);
 };
 
 export const  execLatest = () => {
-  return {};
+  return new Cmd();
 };
 
 export const nope = () => {
