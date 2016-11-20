@@ -39,5 +39,5 @@ export const init = (
   { shared, nest, subscribe } : InitProps<SharedModel>,
   letter: Model
 ) : InitModel<Model> => ({
-  ...letter
+  model: { ...letter }
 });

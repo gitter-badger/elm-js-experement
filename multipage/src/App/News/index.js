@@ -28,5 +28,7 @@ export const init = (
   { shared, nest, subscribe }
   : InitProps<SharedModel>
 ) : InitModel<Model> => ({
-  news: []
+  model: {
+    news: []
+  }
 })

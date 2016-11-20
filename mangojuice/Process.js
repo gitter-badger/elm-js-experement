@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { EventEmitter } from 'events';
 import * as Cmd from './Cmd';
+import Meta from './Meta';
 import { nextId } from './utils';
 
 
@@ -11,44 +12,12 @@ const logger = Cmd.middleware((props, cmdMod, cmd) => {
 });
 
 
-const runInit = (initFn, shared) => {
-  const subscribe = (model, cmd) => ({
-    model, cmd
-  });
-
-  const initRunner = (prevLeaf, middleware, subInit, ...args) => {
-    const nextLeaf = Object.assign(
-      new EventEmitter(),
-      { shared, middleware, prevLeaf, children: {} }
-    );
-    const nest = initRunner.bind(null, nextLeaf);
-    const res = subInit({ nest, shared, subscribe }, ...args);
-    const data = res.model ? res : { model: res };
-    Object.defineProperty(data.model, '_id', {
-      value: nextId(),
-      enumerable: false,
-      configurable: false
-    });
-    nextLeaf.data = data;
-    nextLeaf.nest = nest;
-    nextLeaf.on('shortUpdate', (id) => nextLeaf.emit('fullUpdate', id));
-    nextLeaf.on('fullUpdate', (id) => prevLeaf.emit('fullUpdate', id));
-    prevLeaf.children[data.model._id] = nextLeaf;
-    return data.model;
-  };
-
-  const rootNode = { children: {}, emit: () => {} };
-  const model = initRunner(rootNode, logger, initFn);
-  return { model, meta: rootNode.children[model._id] };
-};
-
-
-const execView = (meta, sharedMeta, View, chain = []) => {
+const execView = (meta, View, chain = []) => {
   const nextChain = chain.concat(meta);
 
   const nest = (model, mid, subView) => {
     const subMeta = meta.children[model._id];
-    return execView(subMeta, sharedMeta, subView, nextChain);
+    return execView(subMeta, subView, nextChain);
   }
 
   const exec = (cmd) => (...args) => {
@@ -60,29 +29,29 @@ const execView = (meta, sharedMeta, View, chain = []) => {
   };
 
   class ViewComponent extends React.Component {
-    updateView = () => {
-      this.forceUpdate();
-    };
-
     componentWillMount() {
-      meta.on('shortUpdate', this.updateView);
-      sharedMeta.on('fullUpdate', this.updateView);
+      this.stopLocal = meta.onLocalUpdate(this.updateView);
+      this.stopGlobal = meta.shared.onGlobalUpdate(this.updateView);
     }
 
     componentWillUnmount() {
-      meta.removeListener('shortUpdate', this.updateView);
-      sharedMeta.removeListener('fullUpdate', this.updateView);
+      this.stopLocal.stop();
+      this.stopGlobal.stop();
     }
 
     shuoldComponentUpdate() {
       return false;
     }
 
+    updateView = () => {
+      this.forceUpdate();
+    };
+
     render() {
       return (
         <View
-          model={meta.data.model}
-          shared={meta.shared}
+          model={meta.model}
+          shared={meta.sharedModel}
           nest={nest}
           exec={exec}
         />
@@ -94,10 +63,9 @@ const execView = (meta, sharedMeta, View, chain = []) => {
 
 
 const execChain = (chain, elem) => {
-  const queue = chain.map(x => ({
-    meta: x,
-    cmd: x.middleware,
-    terminator: x.middleware
+  const queue = chain.slice(1).map(x => ({
+    ...x.middleware,
+    terminator: x.middleware.cmd
   }));
   queue.push(elem);
 
@@ -106,19 +74,20 @@ const execChain = (chain, elem) => {
     const childCmds = [];
 
     for (let i = 0; i < chain.length; i++) {
-      const midMeta = chain[i];
-      const mid = midMeta.middleware;
-      if (mid === terminator) {
+      const chainMeta = chain[i];
+      const middleware = chain[i].middleware || {};
+      if (terminator && middleware.cmd === terminator) {
         break;
       }
 
-      const res = mid.exec(
-        midMeta.data.model, midMeta.shared, midMeta.nest,
-        meta.data.model, cmd
-      );
+      const res = chainMeta.execMiddleware(meta.model, cmd);
       const addCmds = res
         .filter(x => x.id !== cmd.id)
-        .map(x => ({ cmd: x, meta: meta, terminator: meta.middleware }));
+        .map(x => ({
+          cmd: x,
+          meta: middleware.meta,
+          terminator: middleware.cmd
+        }));
 
       childCmds.push(...addCmds);
       if (res.length === addCmds.length) {
@@ -142,12 +111,12 @@ const execChain = (chain, elem) => {
   }
 
   if (!stopped) {
-    const res = elem.cmd.exec(elem.meta.data.model, elem.meta.shared, elem.meta.nest);
+    const res = elem.cmd.exec(elem.meta.model, elem.meta.sharedModel, elem.meta.nest);
     if (elem.cmd instanceof Cmd.BatchCmd) {
       execCmds.push(...res.map(x => ({ ...elem, cmd: x })));
     }
     if (elem.cmd instanceof Cmd.UpdateCmd) {
-      elem.meta.emit('shortUpdate', elem.meta.data.model._id);
+      elem.meta.emitUpdate();
     }
   }
 
@@ -155,7 +124,7 @@ const execChain = (chain, elem) => {
 };
 
 
-const execMeta = (meta, shared, chain = []) => {
+const execMeta = (meta, chain = []) => {
   const nextChain = chain.concat(meta);
   const exec = (cmd, ...args) => {
     if (cmd.bindExec && cmd.bindExec !== exec) {
@@ -165,31 +134,24 @@ const execMeta = (meta, shared, chain = []) => {
     }
   };
 
-  if (meta.data.bindCommands) {
-    const commands = meta.data.bindCommands;
+  if (meta.bindCommands) {
+    const commands = meta.bindCommands;
     Object.keys(commands).forEach(k => {
       commands[k].bindExec = exec;
     });
   }
 
-  if (meta.data && (meta.data.command || meta.data.port)) {
-    const shared = meta.shared;
-    const model = meta.data.model;
-
-    meta.data.command && exec(meta.data.command);
-    meta.data.port && meta.data.port({ exec, model, shared });
+  if (meta.command || meta.port) {
+    const shared = meta.sharedModel;
+    const model = meta.model;
+    meta.command && exec(meta.command);
+    meta.port && meta.port({ exec, model, shared });
   }
 
-  if (meta.data.subs) {
-    const subs = Array.isArray(meta.data.subs) ? meta.data.subs : [meta.data.subs];
-    subs.forEach(sub => {
-      exec(sub.cmd);
-      shared.on('fullUpdate', id => id === sub.model._id && exec(sub.cmd));
-    });
-  }
-
-  Object.keys(meta.children)
-    .forEach((k) => execMeta(meta.children[k], shared, nextChain));
+  meta.makeSubsciptions(exec);
+  Object.keys(meta.children).forEach(k =>
+    execMeta(meta.children[k], nextChain)
+  );
 };
 
 
@@ -198,9 +160,9 @@ export const start = ({
   shared: sharedInit,
   app: appInit
 }) => {
-  const shared = runInit(sharedInit);
-  const app = runInit(appInit, shared.model);
-  execMeta(shared.meta);
-  execMeta(app.meta, shared.meta);
-  ReactDOM.render(execView(app.meta, shared.meta, view), mount);
+  const shared = new Meta(sharedInit);
+  const app = new Meta(appInit, shared);
+  execMeta(shared);
+  execMeta(app);
+  ReactDOM.render(execView(app, view), mount);
 }

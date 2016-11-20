@@ -14,16 +14,10 @@ export class Cmd {
   }
 
   bindArgs(...args) {
-    return this.clone(null, null, args);
-  }
-
-  clone(model, cmd, args) {
-    return new Cmd(
-      model || this._model,
-      cmd || this._commandFn,
-      args || this._args,
-      this._id
-    );
+    const clone = new this.constructor();
+    Object.assign(clone, this);
+    clone._args = args;
+    return clone;
   }
 
   exec(model, shared, nest, ...args) {

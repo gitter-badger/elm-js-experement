@@ -54,6 +54,8 @@ export const View = (
 export const init = (
   { nest } : InitProps<SharedModel>
 ) : InitModel<Model> => ({
-  inbox: nest(Commands.InboxCmd, Inbox.init),
-  sent: nest(Commands.SentCmd, Sent.init)
+  model: {
+    inbox: nest(Commands.InboxCmd, Inbox.init),
+    sent: nest(Commands.SentCmd, Sent.init)
+  }
 });

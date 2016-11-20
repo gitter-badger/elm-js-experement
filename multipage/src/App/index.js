@@ -18,12 +18,12 @@ export type Model = {
 
 export const Commands = Cmd.debug({
   ShowNotification: Cmd.batch((model : Model, message : String) => [
-    Commands.SetNotificationMsg.with(message),
+    Commands.SetNotificationMsg.bindArgs(message),
     Commands.DelayHideNotification
   ]),
   DelayHideNotification: Cmd.execLatest(() =>
     new Task(function* () { yield Task.delay(5000) })
-    .success(Commands.SetNotificationMsg.with(''))
+    .success(Commands.SetNotificationMsg.bindArgs(''))
     .fail(Cmd.nope())
   ),
   SetNotificationMsg: Cmd.update((model : Model, message : String) => ({
@@ -32,7 +32,7 @@ export const Commands = Cmd.debug({
   NewsCmd: Cmd.middleware(),
   MailCmd: Cmd.middleware()
     .on(Letter.Commands.Delete, (model, letter, letterCmd) => [
-      Commands.ShowNotification.with('Letter removed succeessfully!'),
+      Commands.ShowNotification.bindArgs('Letter removed succeessfully!'),
       letterCmd
     ])
 });
@@ -63,7 +63,9 @@ export const init = (
   { shared, nest, subscribe }
   : InitProps<SharedModel>
 ) : Model => ({
-  mail: nest(Commands.MailCmd, Mail.init),
-  news: nest(Commands.NewsCmd, News.init),
-  notification: ''
+  model: {
+    mail: nest(Commands.MailCmd, Mail.init),
+    news: nest(Commands.NewsCmd, News.init),
+    notification: ''
+  }
 });

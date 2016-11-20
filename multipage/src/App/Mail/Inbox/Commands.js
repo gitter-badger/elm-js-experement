@@ -71,7 +71,7 @@ export const LetterMiddleware = Cmd.middleware()
     letter: Letter.Model,
     letterCmd
   ) => [
-    FilterOutLetter.with(letter),
+    FilterOutLetter.bindArgs(letter),
     letterCmd
   ]);
 
