@@ -18,7 +18,7 @@ import { Task } from 'mangojuice';
 
 
 export const GetBoxesList = function* () {
-  yield Task.call(Task.delay, 2000);
+  yield Task.delay(2000);
   const data = yield Task.call(_getBoxesList);
   return data;
 };
@@ -27,11 +27,17 @@ export const GetBoxesList = function* () {
 export const GetBoxLetters = function* (
   { shared }: CmdProps<Model, SharedModel>
 ) {
-  yield Task.call(Task.delay, 2000);
+  yield Task.delay(2000);
   const data = yield Task.call(_getMailsList, shared.route.box);
   return data;
 };
 
+export const SearchLetters = function* ({ model }) {
+  yield Task.delay(350);
+  return model.rawLetters.filter(x => 
+    x.text.indexOf(model.search) >= 0
+  );
+};
 
 export const _getBoxesList = () => {
   return Promise.resolve([

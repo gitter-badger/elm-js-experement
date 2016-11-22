@@ -37,17 +37,36 @@ export const RetreiveBoxes = Cmd.execLatest(
   Tasks.GetBoxesList
 );
 
+// Letters searching
+export const SetLettersList = Cmd.update((props, nextLetters) => ({
+  letters: nextLetters
+}));
+export const SetSearchQuery = Cmd.update((props, text) => ({
+  search: text
+}));
+export const DebouncedSearchLetters = Cmd.execLatest(
+  SetLettersList,
+  Cmd.nope(),
+  Tasks.SearchLetters
+);
+export const SearchLetters = Cmd.batch((props, event) => [
+  SetSearchQuery.bindArgs(event.target.value),
+  DebouncedSearchLetters
+]);
+
 
 // Get letters for active box
-export const RetreiveBoxLettersSuccess = Cmd.update((
+export const SetRawLetters = Cmd.update((
   { nest }: CmdProps<Model, SharedModel>,
   nextLetters: Array<Letter.Model>
 ) => ({
-  letters: nextLetters.map(l => nest(LetterMiddleware, Letter.init, l))
+  rawLetters: nextLetters.map(l => nest(LetterMiddleware, Letter.init, l))
 }));
-
+export const RetreiveBoxLettersSuccess = Cmd.batch((props, letters) => [
+  SetRawLetters.bindArgs(letters),
+  DebouncedSearchLetters
+]);
 export const RetreiveBoxLettersFailed = Cmd.nope();
-
 export const RetreiveBoxLetters = Cmd.execLatest(
   RetreiveBoxLettersSuccess,
   RetreiveBoxLettersFailed,
@@ -60,7 +79,8 @@ export const FilterOutLetter = Cmd.update((
   { model }: CmdProps<Model, SharedModel>,
   letter: Letter.Model
 ) => ({
-  letters: model.letters.filter(x => x !== letter)
+  letters: model.letters.filter(x => x !== letter),
+  rawLetters: model.rawLetters.filter(x => x !== letter),
 }));
 
 

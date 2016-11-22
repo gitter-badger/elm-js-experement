@@ -105,7 +105,14 @@ const execView = (meta, View, chain = []) => {
       this.forceUpdate();
     };
     render() {
-      return <View model={meta.model} shared={meta.sharedModel} nest={nest} exec={exec} />;
+      return (
+        <View
+          model={meta.model}
+          shared={meta.sharedModel}
+          nest={nest}
+          exec={exec}
+        />
+      );
     }
   }
   return <ViewComponent key={meta.model._id} />

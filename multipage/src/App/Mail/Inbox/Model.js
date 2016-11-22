@@ -13,5 +13,7 @@ export type Box = {
 
 export type Model = {
   boxes: Array<Box>,
-  letters: Array<LetterModel>
+  letters: Array<LetterModel>,
+  rawLetters: Array<LetterModel>,
+  search: String
 };

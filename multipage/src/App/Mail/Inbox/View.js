@@ -2,7 +2,7 @@
 import type { ViewProps } from 'mangojuice/types';
 import type { Model as SharedModel } from 'src/Shared';
 import React from 'react';
-import { LetterMiddleware } from './Commands';
+import { LetterMiddleware, SearchLetters } from './Commands';
 import { View as LetterView } from '../Letter';
 import { MailRoutes } from 'src/routes';
 
@@ -28,6 +28,14 @@ export const View = (
           </li>
         ))}
       </ul>
+    </div>
+
+    <div>
+      <input
+        placeholder="Search..."
+        value={model.search}
+        onChange={exec(SearchLetters)}
+      />
     </div>
 
     <div>
