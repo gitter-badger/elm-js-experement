@@ -21,11 +21,11 @@ export const Commands = Cmd.debug({
     Commands.SetNotificationMsg.bindArgs(message),
     Commands.DelayHideNotification
   ]),
-  DelayHideNotification: Cmd.execLatest(() =>
-    new Task(function* () { yield Task.delay(5000) })
-    .success(Commands.SetNotificationMsg.bindArgs(''))
-    .fail(Cmd.nope())
-  ),
+  DelayHideNotification: Cmd.execLatest(() => [
+    Commands.SetNotificationMsg.bindArgs(''),
+    Cmd.nope(),
+    function* () { yield Task.delay(5000) }
+  ]),
   SetNotificationMsg: Cmd.update((model : Model, message : String) => ({
     notification: message
   })),

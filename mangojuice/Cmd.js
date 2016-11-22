@@ -1,4 +1,5 @@
 import { nextId } from './utils';
+import * as sagaProc from 'redux-saga/lib/internal/proc';
 
 
 export class Cmd {
@@ -78,6 +79,65 @@ export class UpdateCmd extends Cmd {
   };
 };
 
+export class TaskCmd extends Cmd {
+  constructor(args, debounce = false) {
+    super();
+    this._executors = {};
+    this._debounce = debounce;
+    this._commandFn = this.executor;
+
+    if (args.length === 1 && !this._argsGetter) {
+      this._argsGetter = args[0];
+    } else {
+      this.ensureCommands(args);
+    }
+  }
+
+  ensureCommands(args) {
+    let usedArgs = args;
+    if (this._argsGetter) {
+      usedArgs = this._argsGetter();
+    }
+    if (usedArgs && usedArgs.length === 3) {
+      this._successCmd = usedArgs[0];
+      this._failCmd = usedArgs[1];
+      this._taskCreator = usedArgs[2];
+    } else if (usedArgs) {
+      throw new Error('Wrong usage of task cmd');
+    }
+  }
+
+  executor = (props, ...args) => {
+    this.ensureCommands();
+
+    const { model: { _id: modelId } } = props;
+    if (this._debounce && this._executors[modelId]) {
+      this._executors[modelId].cancel();
+    }
+
+    let proc;
+    const cancel = () => proc && proc.cancel();
+    const done = new Promise((resolve, reject) => {
+      try {
+        const iterator = this._taskCreator(props, ...args);
+        const handleFail = (err) => reject(this._failCmd.bindArgs(err));
+        const handleSuccess = (res) => {
+          if (res !== sagaProc.TASK_CANCEL) {
+            resolve(this._successCmd.bindArgs(res))
+          }
+        };
+
+        proc = sagaProc.default(iterator);
+        proc.done.then(handleSuccess, handleFail);
+      } catch (e) {
+        reject(this._failCmd.bindArgs(e));
+      }
+    });
+
+    this._executors[modelId] = { done, cancel };
+    return done;
+  };
+}
 
 export const middleware = (defaultFn) => {
   return new MiddlewareCmd(defaultFn);
@@ -91,12 +151,16 @@ export const update = (updaterFn) => {
   return new UpdateCmd(updaterFn);
 };
 
-export const subscription = (commandsFn) => {
-  return batch(commandsFn);
+export const execLatest = (...args) => {
+  return new TaskCmd(args, true);
 };
 
-export const  execLatest = () => {
-  return new Cmd();
+export const execEvery = (...args) => {
+  return new TaskCmd(args);
+};
+
+export const subscription = (commandsFn) => {
+  return batch(commandsFn);
 };
 
 export const nope = () => {

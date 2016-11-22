@@ -6,62 +6,6 @@ import Meta from './Meta';
 import { nextId } from './utils';
 
 
-const logger = Cmd.middleware((props, cmdMod, cmd) => {
-  console.log('Exec:', `${cmd.id} / ${cmd.name}`);
-  return [ cmd ];
-});
-
-
-const execView = (meta, View, chain = []) => {
-  const nextChain = chain.concat(meta);
-
-  const nest = (model, mid, subView) => {
-    const subMeta = meta.children[model._id];
-    return execView(subMeta, subView, nextChain);
-  }
-
-  const exec = (cmd) => (...args) => {
-    if (cmd.bindExec) {
-      cmd.bindExec(cmd, ...args);
-    } else {
-      execChain(nextChain, { meta, cmd, args });
-    }
-  };
-
-  class ViewComponent extends React.Component {
-    componentWillMount() {
-      this.stopLocal = meta.onLocalUpdate(this.updateView);
-      this.stopGlobal = meta.shared.onGlobalUpdate(this.updateView);
-    }
-
-    componentWillUnmount() {
-      this.stopLocal.stop();
-      this.stopGlobal.stop();
-    }
-
-    shuoldComponentUpdate() {
-      return false;
-    }
-
-    updateView = () => {
-      this.forceUpdate();
-    };
-
-    render() {
-      return (
-        <View
-          model={meta.model}
-          shared={meta.sharedModel}
-          nest={nest}
-          exec={exec}
-        />
-      );
-    }
-  }
-  return <ViewComponent />
-};
-
-
 const execChain = (chain, elem) => {
   const queue = chain.slice(1).map(x => ({
     ...x.middleware,
@@ -111,16 +55,60 @@ const execChain = (chain, elem) => {
   }
 
   if (!stopped) {
-    const res = elem.cmd.exec(elem.meta.model, elem.meta.sharedModel, elem.meta.nest);
+    const { args = [], meta: { model, sharedModel, nest } } = elem;
+    const res = elem.cmd.exec(model, sharedModel, nest, ...args);
+
     if (elem.cmd instanceof Cmd.BatchCmd) {
-      execCmds.push(...res.map(x => ({ ...elem, cmd: x })));
-    }
-    if (elem.cmd instanceof Cmd.UpdateCmd) {
+      execCmds.push(...res.map(cmd => ({ ...elem, cmd, args: [] })));
+    } else if (elem.cmd instanceof Cmd.UpdateCmd) {
       elem.meta.emitUpdate();
+    } else if (elem.cmd instanceof Cmd.TaskCmd) {
+      const exec = cmd => execChain(chain, { ...elem, cmd, args: [] });
+      res.then(exec, exec);
     }
   }
 
   execCmds.forEach(x => execChain(chain, x));
+};
+
+
+
+const execView = (meta, View, chain = []) => {
+  const nextChain = chain.concat(meta);
+
+  const nest = (model, mid, subView) => {
+    const subMeta = meta.children[model._id];
+    return execView(subMeta, subView, nextChain);
+  }
+
+  const exec = (cmd) => (...args) => {
+    if (cmd.bindExec) {
+      cmd.bindExec(cmd, ...args);
+    } else {
+      execChain(nextChain, { meta, cmd, args });
+    }
+  };
+
+  class ViewComponent extends React.Component {
+    componentWillMount() {
+      this.stopLocal = meta.onLocalUpdate(this.updateView);
+      this.stopGlobal = meta.shared.onGlobalUpdate(this.updateView);
+    }
+    componentWillUnmount() {
+      this.stopLocal.stop();
+      this.stopGlobal.stop();
+    }
+    shuoldComponentUpdate() {
+      return false;
+    }
+    updateView = () => {
+      this.forceUpdate();
+    };
+    render() {
+      return <View model={meta.model} shared={meta.sharedModel} nest={nest} exec={exec} />;
+    }
+  }
+  return <ViewComponent key={meta.model._id} />
 };
 
 

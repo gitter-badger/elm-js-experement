@@ -17,20 +17,20 @@ import type { Model } from './Model';
 import { Task } from 'mangojuice';
 
 
-export const GetBoxesList = new Task(function* () {
+export const GetBoxesList = function* () {
   yield Task.call(Task.delay, 2000);
   const data = yield Task.call(_getBoxesList);
   return data;
-});
+};
 
 
-export const GetBoxLetters = new Task(function* (
+export const GetBoxLetters = function* (
   { shared }: CmdProps<Model, SharedModel>
 ) {
   yield Task.call(Task.delay, 2000);
   const data = yield Task.call(_getMailsList, shared.route.box);
   return data;
-});
+};
 
 
 export const _getBoxesList = () => {

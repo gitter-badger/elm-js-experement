@@ -21,7 +21,7 @@ export const View = (
       <h1>{shared.intl.formatMessage(Messages.boxes)}</h1>
       <ul>
         {model.boxes.map(box => (
-          <li>
+          <li key={box.id}>
             <a onClick={exec(MailRoutes.Inbox.bindArgs({ box: box.id }))}>
               {box.title}
             </a>
