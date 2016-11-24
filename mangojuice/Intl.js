@@ -13,7 +13,7 @@ export type Model = {
 
 export const Commands = Cmd.debug({
   ChangeLocale: Cmd.batch((props, nextLocale : string) => [
-    Commands.SetNewLocale.with(nextLocale),
+    Commands.SetNewLocale.bindArgs(nextLocale),
     Commands.LoadMessages
   ]),
   SetNewLocale: Cmd.update((props, nextLocale : string) => ({

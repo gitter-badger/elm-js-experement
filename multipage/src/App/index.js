@@ -4,6 +4,7 @@ import type { Model as SharedModel } from 'src/Shared';
 import React from 'react';
 import { Cmd, Task } from 'mangojuice';
 import { Routes, MailRoutes } from 'src/routes';
+import * as Intl from 'mangojuice/Intl';
 import * as User from 'src/Shared/User';
 import * as News from './News';
 import * as Mail from './Mail';
@@ -36,7 +37,7 @@ export const Commands = Cmd.debug({
   NewsCmd: Cmd.middleware(),
   MailCmd: Cmd.middleware()
     .on(Letter.Commands.Delete, ({ shared }, letter, letterCmd) => [
-      Commands.ShowNotification.bindArgs(shared.intl.formatMessage(Messages.letterRemoved)),
+      Commands.ShowNotification.bindArgs(Messages.letterRemoved),
       letterCmd
     ])
 });
@@ -54,12 +55,16 @@ export const View = (
 ) => (
   <div>
     {!!model.notification && (
-      <h1>{model.notification}</h1>
+      <h1>{shared.intl.formatMessage(model.notification)}</h1>
     )}
     <h1>{shared.intl.formatMessage(Messages.title)}</h1>
     <div>{!shared.user.authorized
       ? <button onClick={exec(User.Commands.Login)}>Log in</button>
       : <button onClick={exec(User.Commands.Logout)}>Log out</button>}
+    </div>
+    <div>
+      <button onClick={exec(Intl.Commands.ChangeLocale.bindArgs('ru'))}>Ru</button>
+      <button onClick={exec(Intl.Commands.ChangeLocale.bindArgs('en'))}>En</button>
     </div>
     <ul>
       <li>
