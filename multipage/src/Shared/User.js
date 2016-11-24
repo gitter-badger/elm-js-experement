@@ -9,10 +9,10 @@ export type Model = {
 };
 
 export const Commands = Cmd.debug({
-  Login: Cmd.update((model : Model) => ({
+  Login: Cmd.update(() => ({
     authorized: true, name: 'Test User'
   })),
-  Logout: Cmd.update((model : Model) => ({
+  Logout: Cmd.update(() => ({
     authorized: false,  name: ''
   }))
 });

@@ -67,7 +67,8 @@ const createHistoryHandler = (routes) => {
         return [];
       }
       return Object.values(routesObj).map(r => {
-        const matcher = new UrlPattern(r.pattern + '(/*)');
+        const suffix = r.children ? '(/*)' : '';
+        const matcher = new UrlPattern(r.pattern + suffix);
         meta.routesMap[r.routeId] = matcher;
         meta.routesChildren[r.routeId] = fillObjects(r.children, r.routeId);
         meta.routesParents[r.routeId] = parentId;
