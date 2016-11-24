@@ -29,6 +29,10 @@ export const Commands = Cmd.debug({
   SetNotificationMsg: Cmd.update((props, message : String) => ({
     notification: message
   })),
+  LogModel: Cmd.update(({ model, shared }) => {
+    console.log(JSON.stringify(model, null, 2));
+    console.log(JSON.stringify(shared, null, 2));
+  }),
   NewsCmd: Cmd.middleware(),
   MailCmd: Cmd.middleware()
     .on(Letter.Commands.Delete, ({ shared }, letter, letterCmd) => [
@@ -74,6 +78,7 @@ export const View = (
     {shared.route.when(Routes.Mail, () => nest(model.mail, Commands.MailCmd, Mail.View))}
     {shared.route.when(Routes.News, () => nest(model.news, Commands.NewsCmd, News.View))}
     {shared.route.notFound(() => <span>Page not found :(</span>)}
+    <button onClick={exec(Commands.LogModel)}>Log model</button>
   </div>
 );
 
