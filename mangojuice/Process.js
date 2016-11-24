@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { EventEmitter } from 'events';
 import * as Cmd from './Cmd';
 import Meta from './Meta';
+import { ViewWrapper } from './View';
 import { nextId } from './utils';
 
 
@@ -72,7 +73,6 @@ const execChain = (chain, elem) => {
 };
 
 
-
 const execView = (meta, View, chain = []) => {
   const nextChain = chain.concat(meta);
 
@@ -89,33 +89,12 @@ const execView = (meta, View, chain = []) => {
     }
   };
 
-  class ViewComponent extends React.Component {
-    componentWillMount() {
-      this.stopLocal = meta.onLocalUpdate(this.updateView);
-      this.stopGlobal = meta.shared.onGlobalUpdate(this.updateView);
-    }
-    componentWillUnmount() {
-      this.stopLocal.stop();
-      this.stopGlobal.stop();
-    }
-    shuoldComponentUpdate() {
-      return false;
-    }
-    updateView = () => {
-      this.forceUpdate();
-    };
-    render() {
-      return (
-        <View
-          model={meta.model}
-          shared={meta.sharedModel}
-          nest={nest}
-          exec={exec}
-        />
-      );
-    }
-  }
-  return <ViewComponent key={meta.model._id} />
+  return (
+    <ViewWrapper
+      key={meta.model._id} View={View} meta={meta}
+      nest={nest} exec={exec}
+    />
+  );
 };
 
 

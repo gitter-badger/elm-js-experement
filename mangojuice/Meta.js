@@ -7,6 +7,7 @@ import { nextId } from './utils';
 export default class Meta extends EventEmitter {
   constructor(init: Function, shared: Meta, ...args: Array<any>) {
     super();
+    this.id = nextId();
     this.children = {};
     this.shared = shared;
 
