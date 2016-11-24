@@ -37,6 +37,13 @@ const createModel = (languages) : Model => ({
   messages: {},
   locale: Object.keys(languages).find(k => languages[k].default),
   formatMessage(id: string, ...args: Array<any>) : string {
-    return this.messages[id] || id;
+    const format = this.messages[id];
+    return format ? formatString(format, args) : id;
   }
 });
+
+const formatString = (format, args) => {
+  return format.replace(/{(\d+)}/g, (match, num) => {
+    return typeof args[num] != 'undefined' ? args[num] : match;
+  });
+};

@@ -30,19 +30,15 @@ export const View = (
   <div>
     <ul>
       <li>
-        <a
-          onClick={exec(MailRoutes.Inbox.bindArgs({ box: 0 }))}
-          className={shared.route.is(MailRoutes.Inbox)}
-        >
+        <a onClick={exec(MailRoutes.Inbox.bindArgs({ box: 0 }))}>
           {shared.intl.formatMessage(Messages.inbox)}
+          {shared.route.is(MailRoutes.Inbox) && ' <---'}
         </a>
       </li>
       <li>
-        <a
-          onClick={exec(MailRoutes.Sent)}
-          className={shared.route.is(MailRoutes.Sent)}
-        >
+        <a onClick={exec(MailRoutes.Sent)}>
           {shared.intl.formatMessage(Messages.sent)}
+          {shared.route.is(MailRoutes.Sent) && ' <---'}
         </a>
       </li>
     </ul>

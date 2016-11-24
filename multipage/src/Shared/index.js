@@ -4,7 +4,7 @@ import { Cmd } from 'mangojuice';
 import * as Router from 'mangojuice/Router';
 import * as Intl from 'mangojuice/Intl';
 import * as User from './User';
-import routes from 'src/routes';
+import * as routes from 'src/routes';
 import languages from 'src/languages';
 
 

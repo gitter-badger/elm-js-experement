@@ -50,8 +50,8 @@ export default class Meta extends EventEmitter {
     this.emitGlobalUpdate();
   }
 
-  emitGlobalUpdate = () => {
-    this.emit('globalUpdate', this.model._id);
+  emitGlobalUpdate = (id) => {
+    this.emit('globalUpdate', id || this.model._id);
   }
 
   on(name: string, handler: Function) {
@@ -74,7 +74,7 @@ export default class Meta extends EventEmitter {
   execMiddleware(subModel, subCmd: Cmd): Array<Cmd> {
     if (this.middleware) {
       const { cmd, meta } = this.middleware;
-      return cmd.exec(meta.model, meta.sharedModel, meta.nest, subModel, subCmd);
+      return cmd.exec(meta, subModel, subCmd);
     }
     return [ subCmd ];
   }
@@ -82,7 +82,7 @@ export default class Meta extends EventEmitter {
   makeSubsciptions(exec) {
     this.subs && this.subs.forEach(sub => {
       exec(sub.cmd);
-      this.onGlobalUpdate(id => id === sub.model._id && exec(sub.cmd));
+      this.shared.onGlobalUpdate(id => id === sub.model._id && exec(sub.cmd));
     });
   }
 }

@@ -28,23 +28,23 @@ export const GetBoxLetters = function* (
   { shared }: CmdProps<Model, SharedModel>
 ) {
   yield Task.delay(2000);
-  const data = yield Task.call(_getMailsList, shared.route.box);
+  const data = yield Task.call(_getMailsList, shared.route.params.box);
   return data;
 };
 
 export const SearchLetters = function* ({ model }) {
   yield Task.delay(350);
-  return model.rawLetters.filter(x => 
+  return model.rawLetters.filter(x =>
     x.text.indexOf(model.search) >= 0
   );
 };
 
 export const _getBoxesList = () => {
   return Promise.resolve([
-    { id: '1', title: 'Box 1' },
-    { id: '2', title: 'Box 2' },
-    { id: '3', title: 'Box 3' },
-    { id: '4', title: 'Box 4' },
+    { id: '0', title: 'Box 1' },
+    { id: '1', title: 'Box 2' },
+    { id: '2', title: 'Box 3' },
+    { id: '3', title: 'Box 4' },
   ]);
 };
 

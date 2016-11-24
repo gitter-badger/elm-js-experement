@@ -28,9 +28,7 @@ export const RetreiveBoxesSuccess = Cmd.update((
 ) => ({
   boxes: nextBoxes
 }));
-
 export const RetreiveBoxesFailed = Cmd.nope();
-
 export const RetreiveBoxes = Cmd.execLatest(
   RetreiveBoxesSuccess,
   RetreiveBoxesFailed,
@@ -62,16 +60,25 @@ export const SetRawLetters = Cmd.update((
 ) => ({
   rawLetters: nextLetters.map(l => nest(LetterMiddleware, Letter.init, l))
 }));
+export const CleanupLetters = Cmd.update(() => ({
+  rawLetters: [],
+  letters: []
+}))
 export const RetreiveBoxLettersSuccess = Cmd.batch((props, letters) => [
   SetRawLetters.bindArgs(letters),
   DebouncedSearchLetters
 ]);
 export const RetreiveBoxLettersFailed = Cmd.nope();
-export const RetreiveBoxLetters = Cmd.execLatest(
+export const DoRetreiveBoxLetters = Cmd.execLatest(
   RetreiveBoxLettersSuccess,
   RetreiveBoxLettersFailed,
   Tasks.GetBoxLetters
 );
+export const RetreiveBoxLetters = Cmd.batch(() => [
+  CleanupLetters,
+  DoRetreiveBoxLetters
+]);
+
 
 
 // Remove letter from the list
@@ -99,7 +106,7 @@ export const LetterMiddleware = Cmd.middleware()
 // Handle route changes and generate appropreate commands
 export const RouterSubscription = Cmd.subscription(
   ({ shared }) => [
-    shared.route.firstTime(MailRoutes.Inbox) && RetreiveBoxes,
-    shared.route.changed(MailRoutes.Inbox) && RetreiveBoxLetters,
+      shared.route.firstTime(MailRoutes.Inbox) && RetreiveBoxes,
+      shared.route.changed(MailRoutes.Inbox) && RetreiveBoxLetters,
   ]
 );

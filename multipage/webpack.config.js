@@ -42,5 +42,8 @@ module.exports = {
   devServer: {
     inline: true,
     stats: { colors: true },
+    historyApiFallback: {
+      disableDotRule: true
+    }
   },
 };

@@ -21,10 +21,12 @@ export class Cmd {
     return clone;
   }
 
-  exec(model, shared, nest, ...args) {
+  exec(meta, ...args) {
+    console.log(this.name);
+    const { model, sharedModel: shared, nest } = meta;
     if (this._commandFn) {
       const exactArgs = [].concat(this._args || [], args || []);
-      return this._commandFn({ model, shared, nest }, ...exactArgs);
+      return this._commandFn({ model, shared, nest, meta }, ...exactArgs);
     }
   }
 }
@@ -49,7 +51,7 @@ export class MiddlewareCmd extends Cmd {
 
   executor = (props, cmdModel, cmd) => {
     const filter = this._cmdMap[cmd.id] || this._defaultFilter;
-    return filter(props, cmdModel, cmd);
+    return filter(props, cmdModel, cmd).filter(x => x);
   };
 };
 
@@ -61,7 +63,7 @@ export class BatchCmd extends Cmd {
   }
 
   executor = (props, ...args) => {
-    return this._genFn(props, ...args);
+    return this._genFn(props, ...args).filter(x => x);
   };
 };
 

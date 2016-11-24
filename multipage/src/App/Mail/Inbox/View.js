@@ -24,6 +24,7 @@ export const View = (
           <li key={box.id}>
             <a onClick={exec(MailRoutes.Inbox.bindArgs({ box: box.id }))}>
               {box.title}
+              {shared.route.params.box === box.id && ' <---'}
             </a>
           </li>
         ))}

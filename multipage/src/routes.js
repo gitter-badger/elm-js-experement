@@ -7,8 +7,6 @@ export const MailRoutes = {
 };
 
 export const Routes = {
-  News: route('/news', { default: true }),
+  News: route('/news', null, { default: true }),
   Mail: route('/mail', MailRoutes)
 };
-
-export default Routes;

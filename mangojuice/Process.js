@@ -55,13 +55,13 @@ const execChain = (chain, elem) => {
   }
 
   if (!stopped) {
-    const { args = [], meta: { model, sharedModel, nest } } = elem;
-    const res = elem.cmd.exec(model, sharedModel, nest, ...args);
+    const { args = [], meta } = elem;
+    const res = elem.cmd.exec(meta, ...args);
 
     if (elem.cmd instanceof Cmd.BatchCmd) {
       execCmds.push(...res.map(cmd => ({ ...elem, cmd, args: [] })));
-    } else if (elem.cmd instanceof Cmd.UpdateCmd) {
-      elem.meta.emitUpdate();
+    } else if (elem.cmd instanceof Cmd.UpdateCmd && res) {
+      meta.emitUpdate();
     } else if (elem.cmd instanceof Cmd.TaskCmd) {
       const exec = cmd => execChain(chain, { ...elem, cmd, args: [] });
       res.then(exec, exec);
@@ -130,17 +130,19 @@ const execMeta = (meta, chain = []) => {
   };
 
   if (meta.bindCommands) {
-    const commands = meta.bindCommands;
-    Object.keys(commands).forEach(k => {
-      commands[k].bindExec = exec;
-    });
+    const commandsArr = Array.isArray(meta.bindCommands)
+      ? meta.bindCommands : [ meta.bindCommands ];
+
+    commandsArr.forEach(cmds => Object.keys(cmds).forEach(k => {
+      cmds[k].bindExec = exec;
+    }))
   }
 
   if (meta.command || meta.port) {
     const shared = meta.sharedModel;
     const model = meta.model;
     meta.command && exec(meta.command);
-    meta.port && meta.port({ exec, model, shared });
+    meta.port && meta.port({ exec, model, shared, meta });
   }
 
   meta.makeSubsciptions(exec);
