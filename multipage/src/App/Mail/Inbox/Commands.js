@@ -93,20 +93,14 @@ export const FilterOutLetter = Cmd.update((
 
 // Catch letter commands to change inbox model
 export const LetterMiddleware = Cmd.middleware()
-  .on(Letter.Commands.Delete, (
-    props: CmdProps<Model, SharedModel>,
-    letter: Letter.Model,
-    letterCmd
-  ) => [
+  .on(Letter.Commands.Delete, (props, letter: Letter.Model, letterCmd) => [
     FilterOutLetter.bindArgs(letter),
     letterCmd
   ]);
 
 
 // Handle route changes and generate appropreate commands
-export const RouterSubscription = Cmd.subscription(
-  ({ shared }) => [
-      shared.route.firstTime(MailRoutes.Inbox) && RetreiveBoxes,
-      shared.route.changed(MailRoutes.Inbox) && RetreiveBoxLetters,
-  ]
-);
+export const RouterSubscription = Cmd.subscription(({ shared }) => [
+  shared.route.firstTime(MailRoutes.Inbox) && RetreiveBoxes,
+  shared.route.changed(MailRoutes.Inbox) && RetreiveBoxLetters,
+]);

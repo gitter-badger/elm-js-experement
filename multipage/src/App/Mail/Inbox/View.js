@@ -2,8 +2,8 @@
 import type { ViewProps } from 'mangojuice/types';
 import type { Model as SharedModel } from 'src/Shared';
 import React from 'react';
-import { LetterMiddleware, SearchLetters } from './Commands';
-import { View as LetterView } from '../Letter';
+import * as Commands from './Commands';
+import * as Letter from '../Letter';
 import { MailRoutes } from 'src/routes';
 
 
@@ -35,14 +35,14 @@ export const View = (
       <input
         placeholder="Search..."
         value={model.search}
-        onChange={exec(SearchLetters)}
+        onChange={exec(Commands.SearchLetters)}
       />
     </div>
 
     <div>
       <h2>{shared.intl.formatMessage(Messages.letters)}</h2>
       {model.letters.map(letter =>
-        nest(letter, LetterMiddleware, LetterView)
+        nest(letter, Commands.LetterMiddleware, Letter.View)
       )}
     </div>
   </div>

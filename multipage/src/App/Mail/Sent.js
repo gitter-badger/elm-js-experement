@@ -13,7 +13,6 @@ export type Model = {
 
 export const Commands = Cmd.debug({
   InitSentLetters: Cmd.nope(),
-  UserCmd: Cmd.nope(),
   RouterCmd: Cmd.subscription(({ shared }) => [
     shared.route.firstTime(MailRoutes.Sent) && Commands.InitSentLetters
   ])
@@ -29,9 +28,7 @@ export const View = (
 ) => (
   <div>
     <h2>{shared.intl.formatMessage(Messages.for, shared.user.name)}</h2>
-    {model.letters.map(letter => (
-      <p>{letter.title}</p>
-    ))}
+    {model.letters.map(letter => <p>{letter.title}</p>)}
   </div>
 );
 
@@ -39,10 +36,7 @@ export const init = (
   { shared, nest, subscribe }
   : InitProps<SharedModel>
 ) : InitModel<Model> => ({
-  subs: [
-    subscribe(shared.route, Commands.RouterCmd),
-    subscribe(shared.user, Commands.UserCmd)
-  ],
+  subs: subscribe(shared.route, Commands.RouterCmd),
   model: {
     letters: []
   }
