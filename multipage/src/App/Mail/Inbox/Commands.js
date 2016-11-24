@@ -58,7 +58,7 @@ export const SetRawLetters = Cmd.update((
   { nest }: CmdProps<Model, SharedModel>,
   nextLetters: Array<Letter.Model>
 ) => ({
-  rawLetters: nextLetters.map(l => nest(LetterMiddleware, Letter.init, l))
+  rawLetters: nextLetters.map(l => nest(LetterMiddleware, Letter, l))
 }));
 export const CleanupLetters = Cmd.update(() => ({
   rawLetters: [],

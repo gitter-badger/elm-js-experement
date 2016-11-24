@@ -6,7 +6,6 @@ import * as Shared from './Shared';
 
 Process.start({
   mount: document.getElementById('content'),
-  shared: Shared.init,
-  app: App.init,
-  view: App.View
+  shared: Shared,
+  app: App,
 });

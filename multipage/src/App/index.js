@@ -80,8 +80,8 @@ export const View = (
         </a>
       </li>
     </ul>
-    {shared.route.when(Routes.Mail, () => nest(model.mail, Commands.MailCmd, Mail.View))}
-    {shared.route.when(Routes.News, () => nest(model.news, Commands.NewsCmd, News.View))}
+    {shared.route.when(Routes.Mail, () => nest(model.mail, Mail))}
+    {shared.route.when(Routes.News, () => nest(model.news, News))}
     {shared.route.notFound(() => <span>Page not found :(</span>)}
     <button onClick={exec(Commands.LogModel)}>Log model</button>
   </div>
@@ -92,8 +92,8 @@ export const init = (
   : InitProps<SharedModel>
 ) : Model => ({
   model: {
-    mail: nest(Commands.MailCmd, Mail.init),
-    news: nest(Commands.NewsCmd, News.init),
+    mail: nest(Commands.MailCmd, Mail),
+    news: nest(Commands.NewsCmd, News),
     notification: ''
   }
 });

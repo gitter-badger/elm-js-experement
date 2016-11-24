@@ -42,8 +42,8 @@ export const View = (
         </a>
       </li>
     </ul>
-    {shared.route.when(MailRoutes.Inbox, () => nest(model.inbox, Commands.InboxCmd, Inbox.View))}
-    {shared.route.when(MailRoutes.Sent, () => nest(model.sent, Commands.SentCmd, Sent.View))}
+    {shared.route.when(MailRoutes.Inbox, () => nest(model.inbox, Inbox))}
+    {shared.route.when(MailRoutes.Sent, () => nest(model.sent, Sent))}
   </div>
 );
 
@@ -51,7 +51,7 @@ export const init = (
   { nest } : InitProps<SharedModel>
 ) : InitModel<Model> => ({
   model: {
-    inbox: nest(Commands.InboxCmd, Inbox.init),
-    sent: nest(Commands.SentCmd, Sent.init)
+    inbox: nest(Commands.InboxCmd, Inbox),
+    sent: nest(Commands.SentCmd, Sent)
   }
 });

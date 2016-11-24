@@ -26,8 +26,8 @@ export const init = (
 ) : InitModel<Model> => ({
   bindCommands: Commands,
   model: {
-    route: nest(Commands.RotuerCmd, Router.init, routes),
-    intl: nest(Commands.IntlCmd, Intl.init, languages),
-    user: nest(Commands.UserCmd, User.init)
+    route: nest(Commands.RotuerCmd, Router, routes),
+    intl: nest(Commands.IntlCmd, Intl, languages),
+    user: nest(Commands.UserCmd, User)
   }
 });

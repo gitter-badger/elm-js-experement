@@ -34,8 +34,8 @@ export default class Meta extends EventEmitter {
     return this.shared && this.shared.model;
   }
 
-  nest = (middleware: MiddelwareCmd, init: Function, ...args: Array<any>) => {
-    const nestedMeta = new Meta(init, this.shared, ...args);
+  nest = (middleware: MiddelwareCmd, block: any, ...args: Array<any>) => {
+    const nestedMeta = new Meta(block.init, this.shared, ...args);
     nestedMeta.setMiddleware(middleware, this);
     nestedMeta.onGlobalUpdate(this.emitGlobalUpdate);
     this.children[nestedMeta.model._id] = nestedMeta;

@@ -76,9 +76,9 @@ const execChain = (chain, elem) => {
 const execView = (meta, View, chain = []) => {
   const nextChain = chain.concat(meta);
 
-  const nest = (model, mid, subView) => {
+  const nest = (model, block) => {
     const subMeta = meta.children[model._id];
-    return execView(subMeta, subView, nextChain);
+    return execView(subMeta, block.View, nextChain);
   }
 
   const exec = (cmd) => (...args) => {
@@ -133,12 +133,12 @@ const execMeta = (meta, chain = []) => {
 
 export const start = ({
   view, mount,
-  shared: sharedInit,
-  app: appInit
+  shared: { init: sharedInit },
+  app: { init: appInit, View }
 }) => {
   const shared = new Meta(sharedInit);
   const app = new Meta(appInit, shared);
   execMeta(shared);
   execMeta(app);
-  ReactDOM.render(execView(app, view), mount);
+  ReactDOM.render(execView(app, View), mount);
 }
