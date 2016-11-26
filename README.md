@@ -1,4 +1,6 @@
 # MangoJuice
+
+[![Join the chat at https://gitter.im/elm-js-experement/Lobby](https://badges.gitter.im/elm-js-experement/Lobby.svg)](https://gitter.im/elm-js-experement/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 This is an experimental staff with one goal: bring the most stunning programming interface for SPA development. I inspired for this after meet with Elm and many hours of work with React + Redux + Redux-Saga stack.
 
 ## What i'm trying to achieve
