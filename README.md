@@ -303,20 +303,15 @@ export const init = () => ({
 Props object passed to a `port` contains: block `model`, `shared` model and `exec` function. `exec` is actually a port to the block's environment. It provides a way to execute any command of the block.
 
 ## Conclusion
-To conclude i'd like to highlight some most important benefits:
+To conclude i'd like to highlight some most important benefits of MangoJuice:
+
 1. No callback hell in components (Blocks) tree.
-2. Easy models nesting and async operations handling.
-3. Fully controlled business logic execution
-4. Declarative everywhere
+2. Each Block is completely isolated and reusable.
+3. Easy models nesting and async operations handling.
+4. Declarative everywhere = each component of the Block actually does nothing.
 
 ## Complete example
-In `./multipage` folder you can find a complete example with User model, Routing with nested routes, i18n, block decomposition... So, everything we just figured out and some more. To run the example:
-```
-npm i
-cd ./multipage
-npm i
-npm run dev
-```
+To see everything in action please take a look into multipage example [here](https://github.com/c58/elm-js-experement/tree/master/multipage). It is a complete example with User model, **Routing with nested** routes, **i18n**, block **decomposition**... So, everything we just figured out and some more.
 
 ## What's next
 It is just a concept and i'm waiting for discussion about the interface of MangoJuice. The implementation of the interface is just a proof of concept and should not be considered as something usable. When the interface will be fixed this implementation will be reengineered to be maximum efficient, covered with tests and so on.
